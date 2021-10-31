@@ -26,7 +26,7 @@ contract MlibreToken is ERC20, Ownable {
 ```
 
 # Usage
-```bash
+```javascript
 let Deployer = require('ethereum-smart-contract-deployer');
 let secrets = require('./secrets.json');
 
@@ -44,6 +44,7 @@ let secrets = require('./secrets.json');
 			compileOutput: 'bin'
 		});
 		deployer.info()
+		// deployer.deploy()
 	}
 	catch (e)
 	{
