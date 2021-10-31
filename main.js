@@ -2,6 +2,7 @@ const solc = require("solc");
 const Web3 = require("web3");
 const fs = require("fs");
 var path = require("path");
+const HDWalletProvider = require("@truffle/hdwallet-provider");
 
 class deployer 
 {
@@ -94,7 +95,6 @@ class deployer
 	}
 	hdwallet ()
 	{
-		const HDWalletProvider = require("@truffle/hdwallet-provider");
 		const provider = new HDWalletProvider(this.privateKey, this.httpAddress);
 		this.web3 = new Web3(provider);
 		return this.web3;
