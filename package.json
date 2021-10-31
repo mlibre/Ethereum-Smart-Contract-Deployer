@@ -1,6 +1,6 @@
 {
   "name": "ethereum-smart-contract-deployer",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "main.js",
   "description": "Simple module to make deploying smart contracts easy",
   "author": "mlibre",

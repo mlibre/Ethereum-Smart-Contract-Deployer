@@ -15,11 +15,12 @@ class deployer
 		this.CName = CName;
 		this.CInput = CInput;
 		this.senderAddress = senderAddress;
-		this.privateKey = privateKey;
+		this.privateKey = privateKey; // PrivateKey
 		this.httpAddress = httpAddress || "http://127.0.0.1:8545";
 		this.web3 = web3 || this.hdwallet();
 		this.compilerOptimize = compilerOptimize || false;
 		this.compileOutput = compileOutput || "bin";
+		this.provider;
 		this.networkName;
 		this.getPeerCount;
 		this.contract;
@@ -95,9 +96,21 @@ class deployer
 	}
 	hdwallet ()
 	{
-		const provider = new HDWalletProvider(this.privateKey, this.httpAddress);
-		this.web3 = new Web3(provider);
-		return this.web3;
+		try 
+		{
+			this.provider = new HDWalletProvider({
+				privateKeys: [this.privateKey],
+				providerOrUrl: this.httpAddress
+			});
+			this.web3 = new Web3(this.provider);
+			return this.web3;
+		}
+		catch (error) 
+		{
+			console.error(error);
+			this.provider.engine.stop();
+			throw error;
+		}
 	}
 	async networkInfo ()
 	{
