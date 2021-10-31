@@ -188,12 +188,13 @@ class deployer
 	}
 	async gasCostEstimate (gasValue)
 	{
-		const accBalance = await this.accountBalance();
+		const self = this;
+		const accBalance = await self.accountBalance();
 		console.log("Current ETH balance: ", accBalance);
 		console.log("Gas: ", gasValue);
-		await this.web3.eth.getGasPrice( function (error, gasPriceWei) 
+		await self.web3.eth.getGasPrice( function (error, gasPriceWei) 
 		{
-			var gasPriceInETH = this.web3.utils.fromWei(gasPriceWei);
+			var gasPriceInETH = self.web3.utils.fromWei(gasPriceWei);
 			console.log("Gas Estimate Price in ETH: ", gasPriceInETH);
 			console.log("Total Cost in ETH: ", gasValue * gasPriceInETH);
 			console.log("Balance after deploying: ", accBalance - gasValue * gasPriceInETH);
