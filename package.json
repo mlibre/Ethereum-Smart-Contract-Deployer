@@ -1,0 +1,22 @@
+{
+  "name": "ethereum-smart-contract-deployer",
+  "main": "main.js",
+  "description": "Simple module to make deploying smart contracts easy",
+  "author": "mlibre",
+  "license": "CC0",
+  "keywords": [
+    "ethereum",
+    "smart contracts",
+    "deploy"
+  ],
+  "version": "1.0.0",
+  "dependencies": {
+    "@truffle/hdwallet-provider": "^1.5.1",
+    "solc": "^0.8.9",
+    "web3": "^1.5.3"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-plugin-node": "^11.1.0"
+  }
+}
