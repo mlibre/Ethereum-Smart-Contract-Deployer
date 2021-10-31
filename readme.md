@@ -8,6 +8,23 @@ A simple module to make deploying contracts on Ethereum easy
 npm i ethereum-smart-contract-deployer
 ```
 
+# Requirements
+1. If you want to use your local `Geth`, make sure it is up and running.
+```bash
+geth --goerli --ws --http --syncmode=light --http.api="eth,net,web3,personal,txpool" --allow-insecure-unlock  --http.corsdomain "*"
+```
+2. The contract file is something like this, `ERC20Basic.sol`:
+```javascript
+pragma solidity ^0.8.9;
+import "./node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./node_modules/@openzeppelin/contracts/access/Ownable.sol";
+contract MlibreToken is ERC20, Ownable {
+    constructor(uint256 initialSupply) ERC20("Mlibre", "MLB") {
+        _mint(msg.sender, initialSupply * (10 ** uint256(decimals())));
+    }
+}
+```
+
 # Usage
 ```bash
 let Deployer = require('ethereum-smart-contract-deployer');
@@ -21,7 +38,7 @@ let secrets = require('./secrets.json');
 			CName: 'MlibreToken',
 			CInput: [12300000000],
 			senderAddress: '0xD8f24D419153E5D03d614C5155f900f4B5C8A65C',
-			privateKey: secrets.D8PrivateKey,
+			privateKey: secrets.privateKey,
 			httpAddress: "http://127.0.0.1:8545",
 			compilerOptimize: false,
 			compileOutput: 'bin'

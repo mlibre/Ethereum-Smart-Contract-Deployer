@@ -27,27 +27,32 @@ class deployer
 	}
 	async deploy () 
 	{
-		this.compile();
-		const Voter = new this.web3.eth.Contract(this.contract.abi);
-		const bytecode = `0x${this.contract.evm.bytecode.object}`;
+		const self = this;
+		await this.networkInfo();
+		self.compile();
+		const Voter = new self.web3.eth.Contract(self.contract.abi);
+		const bytecode = `0x${self.contract.evm.bytecode.object}`;
 		let op = {
 			data: bytecode
 		};
-		if (this.CInput)
+		if (self.CInput)
 		{
 			op = Object.assign(op, {
-				arguments: this.CInput
+				arguments: self.CInput
 			});
 		}
 		const gasEstimateValue = await Voter.deploy(op).estimateGas({
-			from: this.senderAddress
+			from: self.senderAddress
 		});
-		await this.gasCostEstimate(gasEstimateValue, this.web3);
-		console.log("\nArguments: ", op.arguments);
-		console.log("Deploying Contract ...\n");
+		await self.gasCostEstimate(gasEstimateValue, self.web3);
+		
+		console.log("\nDeploying Contract ...");
+		console.log("Arguments: ", op.arguments);
+		console.log();
+
 		Voter.deploy(op)
 		.send({
-			from: this.senderAddress
+			from: self.senderAddress
 		})
 		.on("transactionHash" , function (transactionHash) 
 		{
@@ -63,9 +68,9 @@ class deployer
 		})
 		.then(function (receipt) 
 		{
-			console.log("Owner:" , this.senderAddress);
+			console.log("Owner:" , self.senderAddress);
 			console.log("Contract Address:" , receipt.options.address);
-			console.log(`${this.networkName} etherscan` , `https://${this.networkName}.etherscan.io/address/${receipt.options.address}`);
+			console.log("Etherscan.io:" , `https://${self.networkName}.etherscan.io/address/${receipt.options.address}`);
 		});
 	}
 	async info ()
