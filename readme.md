@@ -32,7 +32,7 @@ contract MlibreToken is ERC20, Ownable {
 }
 ```
 
-# Example Usage
+# Examples of usage 
 The module takes some arguments like contract file path, name, ...
 * `combined`: if it is `true` then module will copy all the sol file that is being used in `combined` folder. Default is `false`. It will come handy specially when you want to verify the contract
 * `compilerOptimize`: whether compiler should use optimization or not, default is `false`
