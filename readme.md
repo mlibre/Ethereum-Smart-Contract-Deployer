@@ -3,7 +3,12 @@ Ethereum Smart Contract Deployer
 
 A simple module to make deploying contracts on Ethereum easy.
 
-
+Tested with:
+```javascript
+@truffle/hdwallet-provider: ^1.5.1
+solc: ^0.8.9
+web3: ^1.6.0
+```
 # Installation
 ```bash
 npm i ethereum-smart-contract-deployer
@@ -27,12 +32,13 @@ contract MlibreToken is ERC20, Ownable {
 }
 ```
 
-# Usage
+# Example Usage
 The module takes some arguments like contract file path, name, ...
-* `combined`: if it is `true` then module will copy all the sol file that is being used in `combined` folder. Default is `false`
+* `combined`: if it is `true` then module will copy all the sol file that is being used in `combined` folder. Default is `false`. It will come handy specially when you want to verify the contract
+* `compilerOptimize`: whether compiler should use optimization or not, default is `false`
 
-## Getting information before deploying, you have a local Geth up and running
-You can run a `Geth` like this:
+## Getting information before deploying, using Geth
+You can run a `Geth` by:
 ```bash
 geth --goerli --ws --http --syncmode=light --http.api="eth,net,web3,personal,txpool" --allow-insecure-unlock  --http.corsdomain "*"
 ```
@@ -79,7 +85,7 @@ ETH balance after deploying:  5.8388647658483
 ```
 
 ## Deploying using infura RPC API address
-If you have not an infura key account, you can signup [here](https://infura.io/)
+If you do not have an infura key account, you can signup [here](https://infura.io/)
 
 ```javascript
 let Deployer = require('ethereum-smart-contract-deployer');
