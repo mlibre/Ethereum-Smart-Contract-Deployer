@@ -9,10 +9,11 @@ npm i ethereum-smart-contract-deployer
 ```
 
 # Requirements
-1. If you want to use your local `Geth`, make sure it is up and running.
+1. Make sure you have the solidity compiler `solcjs` installed.
 ```bash
-geth --goerli --ws --http --syncmode=light --http.api="eth,net,web3,personal,txpool" --allow-insecure-unlock  --http.corsdomain "*"
+sudo npm install -g solc
 ```
+
 2. The contract file is something like this, `ERC20Basic.sol`:
 ```javascript
 pragma solidity ^0.8.9;
@@ -26,6 +27,13 @@ contract MlibreToken is ERC20, Ownable {
 ```
 
 # Usage
+
+## Getting information before deploying, you have a local Geth up and running
+You can run a `Geth` like this:
+```bash
+geth --goerli --ws --http --syncmode=light --http.api="eth,net,web3,personal,txpool" --allow-insecure-unlock  --http.corsdomain "*"
+```
+
 ```javascript
 let Deployer = require('ethereum-smart-contract-deployer');
 let secrets = require('./secrets.json');
@@ -44,7 +52,6 @@ let secrets = require('./secrets.json');
 			compileOutput: 'bin'
 		});
 		deployer.info()
-		// deployer.deploy()
 	}
 	catch (e)
 	{
@@ -52,16 +59,71 @@ let secrets = require('./secrets.json');
 	}
 })();
 ```
+
 Output:
 ```java
 Network Name:  goerli
 Network Peers:  4
 
+Solidity Version 0.8.9
 Compiling contract ERC20Basic.sol -> MlibreToken
 
-Current ETH balance:  5.84133280435159079
+ETH balance:  5.84133280435159079
 Gas:  1645359
-Gas Estimate Price in ETH:  0.000000001500000002
+Gas Price in ETH:  0.000000001500000002
 Total Cost in ETH:  0.0024680385032907182
-Balance after deploying:  5.8388647658483
+ETH balance after deploying:  5.8388647658483
+```
+
+## Deploying using infura RPC API address
+If you have not an infura key account, you can signup [here](https://infura.io/)
+
+```javascript
+let Deployer = require('ethereum-smart-contract-deployer');
+let secrets = require('./secrets.json');
+
+(async () => {
+	try
+	{
+		let deployer = await new Deployer({
+			contractFilePath: './ERC20Basic.sol',
+			contractName: 'MlibreToken',
+			input: [12300000000],
+			sender: '0xD8f24D419153E5D03d614C5155f900f4B5C8A65C',
+			privateKey: secrets.D8PrivateKey,
+			httpAddress: secrets.goerliAPIKey,
+			compilerOptimize: true,
+			compileOutput: 'bin'
+		});
+		deployer.deploy()
+	}
+	catch (e)
+	{
+		console.error("Error:" , e);
+	}
+})();
+```
+
+Output:
+```java
+Network Name:  goerli
+Network Peers:  17
+
+Solidity Version: 0.8.9
+Compiling contract ERC20Basic.sol -> MlibreToken
+
+ETH balance:  5.84133280435159079
+Gas:  838377
+Gas Price in ETH:  0.000000001030000006
+Total Cost in ETH:  0.000863528315030262
+ETH balance after deploying:  5.84046927603656
+
+Deploying Contract ...
+Arguments:  [ 12300000000 ]
+
+Transaction hash: 0x74b32c42c7f331b08a7c0f8785c569541bd268b425bf610cbfbcd97c3895ecc3
+Confirmation Number: 0
+Owner: 0xD8f24D419153E5D03d614C5155f900f4B5C8A65C
+Contract Address: 0x5c71E30f5c846Fd1F74a71E5fae274780aa57e51
+Etherscan.io: https://goerli.etherscan.io/address/0x5c71E30f5c846Fd1F74a71E5fae274780aa57e51
 ```

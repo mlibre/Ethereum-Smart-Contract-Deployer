@@ -28,8 +28,10 @@ class deployer
 	async info ()
 	{
 		const self = this;
+
 		await this.networkInfo();
 		this.compile();
+
 		const Voter = new self.web3.eth.Contract(self.contract.abi);
 		const bytecode = `0x${self.contract.evm.bytecode.object}`;
 		let op = {
@@ -98,6 +100,7 @@ class deployer
 
 	compile () 
 	{
+		console.log(`Solidity Version: ${solc.version()}`);
 		const contractRaw = fs.readFileSync(this.contractFilePath, "utf8");
 		const complierInput = {
 			language: "Solidity",
@@ -130,7 +133,7 @@ class deployer
 		{
 			throw compiledContract.errors;
 		}
-		// console.log("Compiled!\n");
+		console.log();
 		const contractName = this.contractName || Object.keys(compiledContract.contracts[this.CFileName])[0];
 		const contract = compiledContract.contracts[this.CFileName][contractName];
 		// console.log(contractName , contract.abi);
@@ -190,14 +193,14 @@ class deployer
 	{
 		const self = this;
 		const accBalance = await self.accountBalance();
-		console.log("Current ETH balance: ", accBalance);
+		console.log("ETH balance: ", accBalance);
 		console.log("Gas: ", gasValue);
 		await self.web3.eth.getGasPrice( function (error, gasPriceWei) 
 		{
 			var gasPriceInETH = self.web3.utils.fromWei(gasPriceWei);
-			console.log("Gas Estimate Price in ETH: ", gasPriceInETH);
+			console.log("Gas Price in ETH: ", gasPriceInETH);
 			console.log("Total Cost in ETH: ", gasValue * gasPriceInETH);
-			console.log("Balance after deploying: ", accBalance - gasValue * gasPriceInETH);
+			console.log("ETH balance after deploying: ", accBalance - gasValue * gasPriceInETH);
 		});
 		// console.log(bytecode);
 		// let gasEstimate = await web3.eth.estimateGas({
@@ -209,6 +212,7 @@ class deployer
 	// https://docs.alchemy.com/alchemy/guides/eip-1559/maxpriorityfeepergas-vs-maxfeepergas
 	// web3.eth.getMaxPriorityFeePerGas().then((f) => console.log("Geth estimate:  ", Number(f)));
 	}
+
 	async accountBalance ()
 	{
 		return this.web3.utils.fromWei(await this.web3.eth.getBalance(this.sender));
