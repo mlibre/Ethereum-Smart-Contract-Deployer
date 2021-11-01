@@ -34,10 +34,13 @@ contract MlibreToken is ERC20, Ownable {
 
 # Examples of usage 
 The module takes some arguments like contract file path, name, ...
-* `combined`: if it is `true` then module will copy all the sol file that is being used in `combined` folder. Default is `false`. It will come handy specially when you want to verify the contract
-* `compilerOptimize`: whether compiler should use optimization or not, default is `false`
+* `combined`: if it is `true` then module will copy all the sol file that is being used in `combined` folder. Default is `false`. It will come handy specially when you want to `verify` the contract
+* `compilerOptimize`: whether compiler should use optimization or not. Default is `false`
+* `httpAddress`: The RPC API URL. Default is `http://127.0.0.1:8545`
+* `privateKey`: The address privateKey
+* `password`: If you are using you local `Geth` as the wallet manger. It is the wallet password 
 
-## Getting information before deploying, using Geth
+## Getting information before deploying, using Geth as a provider
 You can run a `Geth` by:
 ```bash
 geth --goerli --ws --http --syncmode=light --http.api="eth,net,web3,personal,txpool" --allow-insecure-unlock  --http.corsdomain "*"
@@ -136,4 +139,37 @@ Confirmation Number: 0
 Owner: 0xD8f24D419153E5D03d614C5155f900f4B5C8A65C
 Contract Address: 0x5c71E30f5c846Fd1F74a71E5fae274780aa57e51
 Etherscan.io: https://goerli.etherscan.io/address/0x5c71E30f5c846Fd1F74a71E5fae274780aa57e51
+```
+
+## Deploying using Geth as a provider and wallet
+You may want use you local `Geth` as the wallet manager. And you have already imported your accounts there:
+```bash
+geth account import ~/path.to/privateKey
+# Set the password
+```
+
+```javascript
+let Deployer = require('ethereum-smart-contract-deployer');
+let secrets = require('./secrets.json');
+
+(async () => {
+	try
+	{
+		let deployer = await new Deployer({
+			contractFilePath: './ERC20Basic.sol',
+			contractName: 'MlibreToken',
+			input: [12300000000],
+			sender: '0xD8f24D419153E5D03d614C5155f900f4B5C8A65C',
+			password: secrets.gethPassword,
+			compilerOptimize: false,
+			compileOutput: 'bin'
+		});
+		// await deployer.info()
+		deployer.deploy()
+	}
+	catch (e)
+	{
+		console.error("Error:" , e);
+	}
+})();
 ```

@@ -7,24 +7,37 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 class deployer 
 {
 	constructor ({contractFilePath, contractName, input, sender,
-		privateKey, httpAddress, web3, compilerOptimize,
+		privateKey, httpAddress, web3, password, compilerOptimize,
 		compileOutput, combined}) 
 	{
-		this.contractFilePath = contractFilePath; // Contract File path
-		this.CFileName = path.parse(contractFilePath).base; // Contract File Name
-		this.contractName = contractName;
-		this.input = input;
-		this.sender = sender;
-		this.privateKey = privateKey; // PrivateKey
-		this.httpAddress = httpAddress || "http://127.0.0.1:8545";
-		this.web3 = web3 || this.hdwallet();
-		this.compilerOptimize = compilerOptimize || false;
-		this.compileOutput = compileOutput || "bin";
-		this.combined = combined || false;
-		this.provider;
-		this.contract;
-		this.networkName;
-		this.getPeerCount;
+		return (async () => 
+		{
+			this.contractFilePath = contractFilePath; // Contract File path
+			this.CFileName = path.parse(contractFilePath).base; // Contract File Name
+			this.contractName = contractName;
+			this.input = input;
+			this.sender = sender;
+			this.privateKey = privateKey; // PrivateKey
+			this.password = password;
+			this.httpAddress = httpAddress || "http://127.0.0.1:8545";
+			if (privateKey)
+			{
+				this.web3 = web3 || this.hdwallet();
+			}
+			if (password)
+			{
+				this.web3 = web3 || await this.createHTTPWeb3();
+			}
+			this.compilerOptimize = compilerOptimize || false;
+			this.compileOutput = compileOutput || "bin";
+			this.combined = combined || false;
+			this.provider;
+			this.contract;
+			this.networkName;
+			this.getPeerCount;
+
+			return this;
+		})();
 	}
 	async info ()
 	{
@@ -55,6 +68,10 @@ class deployer
 		const self = this;
 		await this.networkInfo();
 		self.compile();
+		if (this.password)
+		{
+			await self.unlockAccount(1000);
+		}
 		const Voter = new self.web3.eth.Contract(self.contract.abi);
 		const bytecode = `0x${self.contract.evm.bytecode.object}`;
 		let op = {
@@ -154,8 +171,7 @@ class deployer
 
 	async createHTTPWeb3 ()
 	{
-		const web3 = new Web3();
-		this.web3 = await web3.setProvider(new web3.providers.HttpProvider(this.httpAddress));
+		this.web3 = new Web3(this.httpAddress);
 		return this.web3;
 	}
 
@@ -191,7 +207,7 @@ class deployer
 		}
 		catch (error) 
 		{
-			console.errors("Unable to get network information");
+			console.error("Unable to get network information");
 		}
 	}
 
@@ -224,9 +240,9 @@ class deployer
 		return this.web3.utils.fromWei(await this.web3.eth.getBalance(this.sender));
 	}
 
-	async unlockAccount (password, duration)
+	async unlockAccount (duration)
 	{
-		await this.web3.eth.personal.unlockAccount(this.sender , password, duration);
+		await this.web3.eth.personal.unlockAccount(this.sender , this.password, duration);
 	}
 
 	findImports (path)
