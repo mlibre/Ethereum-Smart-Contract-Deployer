@@ -52,3 +52,16 @@ let secrets = require('./secrets.json');
 	}
 })();
 ```
+Output:
+```java
+Network Name:  goerli
+Network Peers:  4
+
+Compiling contract ERC20Basic.sol -> MlibreToken
+
+Current ETH balance:  5.84133280435159079
+Gas:  1645359
+Gas Estimate Price in ETH:  0.000000001500000002
+Total Cost in ETH:  0.0024680385032907182
+Balance after deploying:  5.8388647658483
+```

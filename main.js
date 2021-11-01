@@ -6,25 +6,47 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 
 class deployer 
 {
-	constructor ({CFilePath, CName, CInput, senderAddress,
+	constructor ({contractFilePath, contractName, input, sender,
 		privateKey, httpAddress, web3, compilerOptimize,
 		compileOutput}) 
 	{
-		this.CFilePath = CFilePath; // Contract File Address
-		this.CFileName = path.parse(CFilePath).base; // Contract File Name
-		this.CName = CName;
-		this.CInput = CInput;
-		this.senderAddress = senderAddress;
+		this.contractFilePath = contractFilePath; // Contract File path
+		this.CFileName = path.parse(contractFilePath).base; // Contract File Name
+		this.contractName = contractName;
+		this.input = input;
+		this.sender = sender;
 		this.privateKey = privateKey; // PrivateKey
 		this.httpAddress = httpAddress || "http://127.0.0.1:8545";
 		this.web3 = web3 || this.hdwallet();
 		this.compilerOptimize = compilerOptimize || false;
 		this.compileOutput = compileOutput || "bin";
 		this.provider;
+		this.contract;
 		this.networkName;
 		this.getPeerCount;
-		this.contract;
 	}
+	async info ()
+	{
+		const self = this;
+		await this.networkInfo();
+		this.compile();
+		const Voter = new self.web3.eth.Contract(self.contract.abi);
+		const bytecode = `0x${self.contract.evm.bytecode.object}`;
+		let op = {
+			data: bytecode
+		};
+		if (self.input)
+		{
+			op = Object.assign(op, {
+				arguments: self.input
+			});
+		}
+		const gasEstimateValue = await Voter.deploy(op).estimateGas({
+			from: self.sender
+		});
+		await self.gasCostEstimate(gasEstimateValue, self.web3);
+	}
+
 	async deploy () 
 	{
 		const self = this;
@@ -35,14 +57,14 @@ class deployer
 		let op = {
 			data: bytecode
 		};
-		if (self.CInput)
+		if (self.input)
 		{
 			op = Object.assign(op, {
-				arguments: self.CInput
+				arguments: self.input
 			});
 		}
 		const gasEstimateValue = await Voter.deploy(op).estimateGas({
-			from: self.senderAddress
+			from: self.sender
 		});
 		await self.gasCostEstimate(gasEstimateValue, self.web3);
 		
@@ -52,7 +74,7 @@ class deployer
 
 		Voter.deploy(op)
 		.send({
-			from: self.senderAddress
+			from: self.sender
 		})
 		.on("transactionHash" , function (transactionHash) 
 		{
@@ -68,68 +90,15 @@ class deployer
 		})
 		.then(function (receipt) 
 		{
-			console.log("Owner:" , self.senderAddress);
+			console.log("Owner:" , self.sender);
 			console.log("Contract Address:" , receipt.options.address);
 			console.log("Etherscan.io:" , `https://${self.networkName}.etherscan.io/address/${receipt.options.address}`);
 		});
 	}
-	async info ()
-	{
-		await this.networkInfo();
-		this.compile();
-		const Voter = new this.web3.eth.Contract(this.contract.abi);
-		const bytecode = `0x${this.contract.evm.bytecode.object}`;
-		let op = {
-			data: bytecode
-		};
-		if (this.CInput)
-		{
-			op = Object.assign(op, {
-				arguments: this.CInput
-			});
-		}
-		const gasEstimateValue = await Voter.deploy(op).estimateGas({
-			from: this.senderAddress
-		});
-		await this.gasCostEstimate(gasEstimateValue, this.web3);
-	}
-	async createHTTPWeb3 ()
-	{
-		const web3 = new Web3();
-		this.web3 = await web3.setProvider(new web3.providers.HttpProvider(this.httpAddress));
-		return this.web3;
-	}
-	hdwallet ()
-	{
-		try 
-		{
-			this.provider = new HDWalletProvider({
-				privateKeys: [this.privateKey],
-				providerOrUrl: this.httpAddress
-			});
-			this.web3 = new Web3(this.provider);
-			return this.web3;
-		}
-		catch (error) 
-		{
-			console.error(error);
-			this.provider.engine.stop();
-			throw error;
-		}
-	}
-	async networkInfo ()
-	{
-		this.networkName = await this.web3.eth.net.getNetworkType();
-		this.getPeerCount = await this.web3.eth.net.getPeerCount();
-		console.log();
-		console.log("Network Name: ", this.networkName);
-		console.log("Network getPeerCount: ", this.getPeerCount);
-		console.log();
-	}
+
 	compile () 
 	{
-		const contractRaw = fs.readFileSync(this.CFilePath, "utf8");
-
+		const contractRaw = fs.readFileSync(this.contractFilePath, "utf8");
 		const complierInput = {
 			language: "Solidity",
 			sources:
@@ -155,14 +124,14 @@ class deployer
 				}
 			}
 		};
-		console.log("Compiling contract:" , this.CFileName);
+		console.log(`Compiling contract ${this.CFileName} -> ${this.contractName}`);
 		const compiledContract = JSON.parse(solc.compile(JSON.stringify(complierInput), { import: this.findImports } ));
 		if (compiledContract.errors)
 		{
 			throw compiledContract.errors;
 		}
-		console.log("Contract Compiled!\n");
-		const contractName = this.CName || Object.keys(compiledContract.contracts[this.CFileName])[0];
+		// console.log("Compiled!\n");
+		const contractName = this.contractName || Object.keys(compiledContract.contracts[this.CFileName])[0];
 		const contract = compiledContract.contracts[this.CFileName][contractName];
 		// console.log(contractName , contract.abi);
 		const {abi} = contract;
@@ -173,24 +142,50 @@ class deployer
 		fs.writeFileSync(path.join(this.compileOutput, `${contractName}_abi.json`), JSON.stringify(abi));
 		this.contract = contract;
 	}
-	findImports (path)
+
+	async createHTTPWeb3 ()
+	{
+		const web3 = new Web3();
+		this.web3 = await web3.setProvider(new web3.providers.HttpProvider(this.httpAddress));
+		return this.web3;
+	}
+
+	hdwallet ()
 	{
 		try 
 		{
-			return {
-				contents: fs.readFileSync(path , "utf8")
-			};
+			this.provider = new HDWalletProvider({
+				privateKeys: [this.privateKey],
+				providerOrUrl: this.httpAddress
+			});
+			this.web3 = new Web3(this.provider);
+			return this.web3;
 		}
 		catch (error) 
 		{
-			console.log(error);
+			console.error(error);
+			this.provider.engine.stop();
 			throw error;
 		}
 	}
-	async unlockAccount (password, duration)
+
+	async networkInfo ()
 	{
-		await this.web3.eth.personal.unlockAccount(this.senderAddress , password, duration);
+		try 
+		{
+			this.networkName = await this.web3.eth.net.getNetworkType();
+			this.getPeerCount = await this.web3.eth.net.getPeerCount();
+			console.log();
+			console.log("Network Name: ", this.networkName);
+			console.log("Network Peers: ", this.getPeerCount);
+			console.log();
+		}
+		catch (error) 
+		{
+			console.errors("Unable to get network information");
+		}
 	}
+
 	async gasCostEstimate (gasValue)
 	{
 		const self = this;
@@ -216,7 +211,27 @@ class deployer
 	}
 	async accountBalance ()
 	{
-		return this.web3.utils.fromWei(await this.web3.eth.getBalance(this.senderAddress));
+		return this.web3.utils.fromWei(await this.web3.eth.getBalance(this.sender));
+	}
+
+	async unlockAccount (password, duration)
+	{
+		await this.web3.eth.personal.unlockAccount(this.sender , password, duration);
+	}
+
+	findImports (path)
+	{
+		try 
+		{
+			return {
+				contents: fs.readFileSync(path , "utf8")
+			};
+		}
+		catch (error) 
+		{
+			console.log(error);
+			throw error;
+		}
 	}
 }
  
