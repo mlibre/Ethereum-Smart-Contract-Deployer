@@ -20,7 +20,7 @@ npm i ethereum-smart-contract-deployer
 sudo npm install -g solc
 ```
 
-2. The contract file is something like this, `ERC20Basic.sol`:
+2. The contract file is something like, `ERC20Basic.sol`:
 ```javascript
 pragma solidity ^0.8.9;
 import "./node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -34,7 +34,7 @@ contract MlibreToken is ERC20, Ownable {
 
 # Examples of usage 
 The module takes some arguments like contract file path, name, ...
-* `combined`: if it is `true` then module will copy all the sol file that is being used in `combined` folder. Default is `false`. It will come handy specially when you want to `verify` the contract
+* `combined`: if it is `true` then module will copy all the sol files that is being used in `combined` folder. Default is `false`. It will come handy specially when you want to `verify` the contract
 * `compilerOptimize`: whether compiler should use optimization or not. Default is `false`
 * `httpAddress`: The RPC API URL. Default is `http://127.0.0.1:8545`
 * `privateKey`: The address privateKey
