@@ -8,7 +8,7 @@ class deployer
 {
 	constructor ({contractFilePath, contractName, input, sender,
 		privateKey, httpAddress, web3, compilerOptimize,
-		compileOutput}) 
+		compileOutput, combined}) 
 	{
 		this.contractFilePath = contractFilePath; // Contract File path
 		this.CFileName = path.parse(contractFilePath).base; // Contract File Name
@@ -20,6 +20,7 @@ class deployer
 		this.web3 = web3 || this.hdwallet();
 		this.compilerOptimize = compilerOptimize || false;
 		this.compileOutput = compileOutput || "bin";
+		this.combined = combined || false;
 		this.provider;
 		this.contract;
 		this.networkName;
@@ -128,7 +129,12 @@ class deployer
 			}
 		};
 		console.log(`Compiling contract ${this.CFileName} -> ${this.contractName}`);
-		const compiledContract = JSON.parse(solc.compile(JSON.stringify(complierInput), { import: this.findImports } ));
+		let importFunc = this.findImports;
+		if (this.combined)
+		{
+			importFunc = this.findImportsCombine;
+		}
+		const compiledContract = JSON.parse(solc.compile(JSON.stringify(complierInput), { import: importFunc } ));
 		if (compiledContract.errors)
 		{
 			throw compiledContract.errors;
@@ -229,6 +235,29 @@ class deployer
 		{
 			return {
 				contents: fs.readFileSync(path , "utf8")
+			};
+		}
+		catch (error) 
+		{
+			console.log(error);
+			throw error;
+		}
+	}
+
+	findImportsCombine (fPath)
+	{
+		try 
+		{
+			const file = fs.readFileSync(fPath , "utf8");
+			const fileName = path.parse(fPath).base;
+			try 
+			{
+				fs.mkdirSync("combined");
+			}
+			catch (error) {}
+			fs.copyFileSync(fPath , `./combined/${fileName}`);
+			return {
+				contents: file
 			};
 		}
 		catch (error) 

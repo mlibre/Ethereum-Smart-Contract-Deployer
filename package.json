@@ -1,6 +1,6 @@
 {
   "name": "ethereum-smart-contract-deployer",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "main": "main.js",
   "description": "Simple module to make deploying smart contracts easy",
   "author": "mlibre",
@@ -12,6 +12,9 @@
     "eth",
     "blockchain"
   ],
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "dependencies": {
     "@truffle/hdwallet-provider": "^1.5.1",
     "solc": "^0.8.9",

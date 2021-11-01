@@ -1,7 +1,8 @@
 Ethereum Smart Contract Deployer
 ===
 
-A simple module to make deploying contracts on Ethereum easy
+A simple module to make deploying contracts on Ethereum easy.
+
 
 # Installation
 ```bash
@@ -27,6 +28,8 @@ contract MlibreToken is ERC20, Ownable {
 ```
 
 # Usage
+The module takes some arguments like contract file path, name, ...
+* `combined`: if it is `true` then module will copy all the sol file that is being used in `combined` folder. Default is `false`
 
 ## Getting information before deploying, you have a local Geth up and running
 You can run a `Geth` like this:
@@ -93,7 +96,8 @@ let secrets = require('./secrets.json');
 			privateKey: secrets.D8PrivateKey,
 			httpAddress: secrets.goerliAPIKey,
 			compilerOptimize: true,
-			compileOutput: 'bin'
+			compileOutput: 'bin',
+			combined: true
 		});
 		deployer.deploy()
 	}
