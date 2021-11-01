@@ -51,10 +51,10 @@ let secrets = require('./secrets.json');
 	try
 	{
 		let deployer = await new Deployer({
-			CFilePath: './ERC20Basic.sol',
-			CName: 'MlibreToken',
-			CInput: [12300000000],
-			senderAddress: '0xD8f24D419153E5D03d614C5155f900f4B5C8A65C',
+			contractFilePath: './ERC20Basic.sol',
+			contractName: 'MlibreToken',
+			input: [12300000000],
+			sender: '0xD8f24D419153E5D03d614C5155f900f4B5C8A65C',
 			privateKey: secrets.privateKey,
 			httpAddress: "http://127.0.0.1:8545",
 			compilerOptimize: false,
