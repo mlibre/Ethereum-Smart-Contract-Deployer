@@ -1,6 +1,5 @@
 Ethereum Smart Contract Deployer
 ===
-
 A simple module to make deploying contracts on Ethereum easy.
 
 Tested with:
@@ -9,6 +8,7 @@ Tested with:
 solc: ^0.8.9
 web3: ^1.6.0
 ```
+
 # Installation
 ```bash
 npm i ethereum-smart-contract-deployer
@@ -33,12 +33,13 @@ contract MlibreToken is ERC20, Ownable {
 ```
 
 # Examples of usage 
-The module takes some arguments like contract file path, name, ...
-* `combined`: if it is `true` then module will copy all the sol files that is being used in `combined` folder. Default is `false`. It will come handy specially when you want to `verify` the contract
-* `compilerOptimize`: whether compiler should use optimization or not. Default is `false`
+The module takes some arguments like contract file path and name. here are some important options:
+
 * `httpAddress`: The RPC API URL. Default is `http://127.0.0.1:8545`
 * `privateKey`: The address privateKey
 * `password`: If you are using you local `Geth` as the wallet manger. It is the wallet password 
+* `combined`: if it is `true` then module will copy all the sol files that is being used in `combined` folder. Default is `false`. It will come handy specially when you want to `verify` the contract
+* `compilerOptimize`: whether compiler should use optimization or not. Default is `false`
 
 ## Getting information before deploying, using Geth as a provider
 You can run a `Geth` by:
@@ -173,3 +174,7 @@ let secrets = require('./secrets.json');
 	}
 })();
 ```
+
+# Donate :heartpulse:
+ETH:
+> 0xc9b64496986E7b6D4A68fDF69eF132A35e91838e
