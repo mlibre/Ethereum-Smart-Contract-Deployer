@@ -3,8 +3,14 @@
   "version": "1.1.4",
   "main": "main.js",
   "description": "Easy deploying ethereum smart contracts",
-  "author": "mlibre",
+  "author": {
+    "name": "mlibre",
+    "email": "m.gh@linuxmail.org",
+    "url": "https://twitter.com/mlibreT"
+  },
   "license": "CC0",
+  "homepage": "https://github.com/mlibre/Ethereum-Smart-Contract-Deployer",
+  "bugs": "https://github.com/mlibre/Ethereum-Smart-Contract-Deployer/issues",
   "keywords": [
     "ethereum",
     "smart contracts",
