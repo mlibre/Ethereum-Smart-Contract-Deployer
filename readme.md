@@ -18,7 +18,7 @@ web3: ^1.6.0
 	* [Deploying using Geth as the provider and the wallet manager](#deploying-using-geth-as-the-provider-and-the-wallet-manager)
 	* [Deploying on Ganache using mnemonic phrase](#deploying-on-ganache-using-mnemonic-phrase)
 * [License](#license)
-* [Donate](#donate)
+* [Donate](#donate-heartpulse)
 
 # Installation
 ```bash
