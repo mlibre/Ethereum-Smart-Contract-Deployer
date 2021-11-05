@@ -9,6 +9,17 @@ solc: ^0.8.9
 web3: ^1.6.0
 ```
 
+# Table of content
+* [Installation](#installation)
+* [Requirements](#requirements)
+* [Examples Of Usage](#examples-of-usage)
+	* [Getting information only, using Geth as a provider](#getting-information-only,-using-geth-as-a-provider)
+	* [Deploying using infura RPC API address](#deploying-using-infura-rpc-API-address)
+	* [Deploying using Geth as the provider and the wallet manager](#deploying-using-geth-as-the-provider-and-the-wallet-manager)
+	* [Deploying on Ganache using mnemonic phrase](#deploying-on-ganache-using-mnemonic-phrase)
+* [License](#license)
+* [Donate](#donate)
+
 # Installation
 ```bash
 npm i ethereum-smart-contract-deployer
@@ -32,7 +43,7 @@ contract MlibreToken is ERC20 {
 }
 ```
 
-# Examples of usage 
+# Examples Of Usage 
 Deployer can work with your local `geth` client, or external providers like **infura**.  
 
 * `httpAddress`: The RPC API URL. Default is `http://127.0.0.1:8545`
@@ -220,6 +231,9 @@ let secrets = require('./secrets.json');
 	}
 })();
 ```
+
+# License
+CC0
 
 # Donate :heartpulse:
 ETH:
