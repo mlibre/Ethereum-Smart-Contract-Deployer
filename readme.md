@@ -16,7 +16,7 @@ web3: ^1.6.0
 	* [Getting information only, using Geth as a provider](#getting-information-only,-using-geth-as-a-provider)
 	* [Deploying using infura RPC API address](#deploying-using-infura-rpc-API-address)
 	* [Deploying using Geth as the provider and the wallet manager](#deploying-using-geth-as-the-provider-and-the-wallet-manager)
-	* [Deploying on Ganache using mnemonic phrase](#deploying-on-ganache-using-mnemonic-phrase)
+	* [Deploying on Ganache using a mnemonic phrase](#deploying-on-ganache-using-a-mnemonic-phrase)
 * [License](#license)
 * [Donate](#donate-heartpulse)
 
@@ -31,7 +31,7 @@ npm i ethereum-smart-contract-deployer
 sudo npm install -g solc
 ```
 
-2. The contract file is something like `ERC20Basic.sol`:
+2. Your contract file. something like `ERC20.sol`:
 ```javascript
 pragma solidity ^0.8.9;
 
@@ -44,15 +44,17 @@ contract MlibreToken is ERC20 {
 ```
 
 # Examples Of Usage 
-Deployer can work with your local `geth` client, or external providers like **infura**.  
+The deployer can work with your local `geth` client or external providers like **infura**.  
 
 * `httpAddress`: The RPC API URL. Default is `http://127.0.0.1:8545`
 * `privateKey`: The address privateKey
-* `mnemonic`: The wallet mnemonic phrase.
-* `password`: The `Geth` wallet password, If you want use your local `geth` as the wallet manager
-* `combined`: Module will copy all the `.sol` files that is being used(imported) into the `combined` folder. It will come handy specially when you want to `verify` a contract. Default is `false`
-* `compilerOptimize`: whether compiler should use optimization or not. Default is `false`
-* `setGas`: Will calculate and set the gas, gasPrice arguments. Default is `false`
+* `mnemonic`: The wallet mnemonic phrase
+* `password`: The `Geth` wallet password, If you want to use your local `geth` as the wallet manager
+* `input`: Contract Constructor input
+* `sender`: The sender address
+* `compilerOptimize`: whether the compiler should use optimization or not. Default is `false`
+* `combined`: Module will copy all the `.sol` files that are being used(imported) into the `combined` folder. It will come in handy, especially when you want to `verify` a contract. Default is `false`
+* `setGas`: Will calculate and set the `gas` and `gasPrice` arguments. Default is `false`
 
 Either private, or mnemonic, or password should be used.
 
@@ -192,7 +194,7 @@ let secrets = require('./secrets.json');
 })();
 ```
 
-## Deploying on Ganache using mnemonic phrase
+## Deploying on Ganache using a mnemonic phrase
 ```javascript
 let Deployer = require('ethereum-smart-contract-deployer');
 let secrets = require('./secrets.json');
