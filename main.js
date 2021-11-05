@@ -162,7 +162,6 @@ class deployer
 		{
 			try 
 			{
-				fs.copyFileSync(this.contractFilePath , `./combined/${this.CFileName}`);
 				fs.mkdirSync("combined");
 			}
 			catch (error) 
@@ -172,6 +171,11 @@ class deployer
 					throw error;
 				}
 			}
+			try 
+			{
+				fs.copyFileSync(this.contractFilePath , `./combined/${this.CFileName}`);
+			}
+			catch {}
 			importFunc = this.findImportsCombine;
 		}
 		const compiledContract = JSON.parse(solc.compile(JSON.stringify(complierInput), { import: importFunc } ));
