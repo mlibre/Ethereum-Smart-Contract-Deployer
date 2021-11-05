@@ -7,8 +7,8 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 class deployer 
 {
 	constructor ({contractFilePath, contractName, input, sender,
-		privateKey, httpAddress, web3, password, compilerOptimize,
-		compileOutput, combined}) 
+		httpAddress, web3, setGas, privateKey, password, mnemonic,
+		compilerOptimize,	compileOutput, combined, confirmations}) 
 	{
 		return (async () => 
 		{
@@ -19,8 +19,9 @@ class deployer
 			this.sender = sender;
 			this.privateKey = privateKey; // PrivateKey
 			this.password = password;
+			this.mnemonic = mnemonic;
 			this.httpAddress = httpAddress || "http://127.0.0.1:8545";
-			if (privateKey)
+			if (privateKey  || mnemonic)
 			{
 				this.web3 = web3 || this.hdwallet();
 			}
@@ -28,14 +29,17 @@ class deployer
 			{
 				this.web3 = web3 || await this.createHTTPWeb3();
 			}
+			this.setGas = setGas || false;
 			this.compilerOptimize = compilerOptimize || false;
 			this.compileOutput = compileOutput || "bin";
 			this.combined = combined || false;
+			this.confirmations = confirmations || false;
+
 			this.provider;
 			this.contract;
+			this.contractInstance;
 			this.networkName;
 			this.getPeerCount;
-
 			return this;
 		})();
 	}
@@ -86,34 +90,41 @@ class deployer
 		const gasEstimateValue = await Voter.deploy(op).estimateGas({
 			from: self.sender
 		});
-		await self.gasCostEstimate(gasEstimateValue, self.web3);
-		
+		const gasPrice = await self.gasCostEstimate(gasEstimateValue, self.web3);
+
 		console.log("\nDeploying Contract ...");
 		console.log("Arguments: ", op.arguments);
 		console.log();
 
-		Voter.deploy(op)
-		.send({
-			from: self.sender
-		})
+		const opt = {
+			from: self.sender,
+		};
+		if (this.setGas)
+		{
+			opt.gas = gasEstimateValue;
+			opt.gasPrice = gasPrice;
+		}
+		self.contractInstance = await Voter.deploy(op)
+		.send(opt)
 		.on("transactionHash" , function (transactionHash) 
 		{
 			console.log(`Transaction hash: ${transactionHash}`);
 		})
 		.on("confirmation" , function (confirmationNumber) 
 		{
-			console.log(`Confirmation Number: ${confirmationNumber}`);
+			if (self.confirmations)
+			{
+				console.log(`Confirmation Number: ${confirmationNumber}`);
+			}
 		})
 		.on("error" , function (error) 
 		{
 			console.log(error);
-		})
-		.then(function (receipt) 
-		{
-			console.log("Owner:" , self.sender);
-			console.log("Contract Address:" , receipt.options.address);
-			console.log("Etherscan.io:" , `https://${self.networkName}.etherscan.io/address/${receipt.options.address}`);
 		});
+		console.log("Owner:" , self.sender);
+		console.log("Contract Address:" , self.contractInstance.options.address);
+		console.log("Etherscan.io:" , `https://${self.networkName}.etherscan.io/address/${self.contractInstance.options.address}`);
+		return self.contractInstance;
 	}
 
 	compile () 
@@ -149,6 +160,18 @@ class deployer
 		let importFunc = this.findImports;
 		if (this.combined)
 		{
+			try 
+			{
+				fs.copyFileSync(this.contractFilePath , `./combined/${this.CFileName}`);
+				fs.mkdirSync("combined");
+			}
+			catch (error) 
+			{
+				if (error.code !== "EEXIST")
+				{
+					throw error;
+				}
+			}
 			importFunc = this.findImportsCombine;
 		}
 		const compiledContract = JSON.parse(solc.compile(JSON.stringify(complierInput), { import: importFunc } ));
@@ -160,12 +183,11 @@ class deployer
 		const contractName = this.contractName || Object.keys(compiledContract.contracts[this.CFileName])[0];
 		const contract = compiledContract.contracts[this.CFileName][contractName];
 		// console.log(contractName , contract.abi);
-		const {abi} = contract;
 		if (!fs.existsSync(this.compileOutput))
 		{
 			fs.mkdirSync(this.compileOutput, { recursive: true });
 		}
-		fs.writeFileSync(path.join(this.compileOutput, `${contractName}_abi.json`), JSON.stringify(abi));
+		fs.writeFileSync(path.join(this.compileOutput, `${contractName}_abi.json`), JSON.stringify(contract.abi));
 		this.contract = contract;
 	}
 
@@ -179,10 +201,18 @@ class deployer
 	{
 		try 
 		{
-			this.provider = new HDWalletProvider({
-				privateKeys: [this.privateKey],
+			const options = {
 				providerOrUrl: this.httpAddress
-			});
+			};
+			if (this.privateKey)
+			{
+				options.privateKeys = [this.privateKey];
+			}
+			if (this.mnemonic)
+			{
+				options.mnemonic = {phrase: this.mnemonic};
+			}
+			this.provider = new HDWalletProvider(options);
 			this.web3 = new Web3(this.provider);
 			return this.web3;
 		}
@@ -211,19 +241,18 @@ class deployer
 		}
 	}
 
-	async gasCostEstimate (gasValue)
+	async gasCostEstimate (gas)
 	{
 		const self = this;
 		const accBalance = await self.accountBalance();
 		console.log("ETH balance: ", accBalance);
-		console.log("Gas: ", gasValue);
-		await self.web3.eth.getGasPrice( function (error, gasPriceWei) 
-		{
-			var gasPriceInETH = self.web3.utils.fromWei(gasPriceWei);
-			console.log("Gas Price in ETH: ", gasPriceInETH);
-			console.log("Total Cost in ETH: ", gasValue * gasPriceInETH);
-			console.log("ETH balance after deploying: ", accBalance - gasValue * gasPriceInETH);
-		});
+		console.log("Gas: ", gas);
+		const gasPriceWei = await self.web3.eth.getGasPrice();
+		var gasPriceInETH = self.toFixed(self.web3.utils.fromWei(gasPriceWei));
+		console.log("Gas Price in ETH: ", gasPriceInETH);
+		console.log("Total Cost in ETH: ", self.toFixed(gas * gasPriceInETH));
+		console.log("ETH balance after deploying: ", accBalance - gas * gasPriceInETH);
+		return gasPriceWei;
 		// console.log(bytecode);
 		// let gasEstimate = await web3.eth.estimateGas({
 		// 	from: sender,
@@ -233,6 +262,11 @@ class deployer
 
 	// https://docs.alchemy.com/alchemy/guides/eip-1559/maxpriorityfeepergas-vs-maxfeepergas
 	// web3.eth.getMaxPriorityFeePerGas().then((f) => console.log("Geth estimate:  ", Number(f)));
+	}
+
+	toFixed (number) 
+	{
+		return parseFloat(number).toFixed(20).replace(/\.?0+$/,"");
 	}
 
 	async accountBalance ()
@@ -266,11 +300,6 @@ class deployer
 		{
 			const file = fs.readFileSync(fPath , "utf8");
 			const fileName = path.parse(fPath).base;
-			try 
-			{
-				fs.mkdirSync("combined");
-			}
-			catch (error) {}
 			fs.copyFileSync(fPath , `./combined/${fileName}`);
 			return {
 				contents: file

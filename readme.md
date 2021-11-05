@@ -20,12 +20,12 @@ npm i ethereum-smart-contract-deployer
 sudo npm install -g solc
 ```
 
-2. The contract file is something like, `ERC20Basic.sol`:
+2. The contract file is something like `ERC20Basic.sol`:
 ```javascript
 pragma solidity ^0.8.9;
+
 import "./node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./node_modules/@openzeppelin/contracts/access/Ownable.sol";
-contract MlibreToken is ERC20, Ownable {
+contract MlibreToken is ERC20 {
     constructor(uint256 initialSupply) ERC20("Mlibre", "MLB") {
         _mint(msg.sender, initialSupply * (10 ** uint256(decimals())));
     }
@@ -33,15 +33,19 @@ contract MlibreToken is ERC20, Ownable {
 ```
 
 # Examples of usage 
-The module takes some arguments like contract file path and name. here are some important options:
+Deployer can work with your local `geth` client, or external providers like **infura**.  
 
 * `httpAddress`: The RPC API URL. Default is `http://127.0.0.1:8545`
 * `privateKey`: The address privateKey
-* `password`: If you are using you local `Geth` as the wallet manger. It is the wallet password 
-* `combined`: if it is `true` then module will copy all the sol files that is being used in `combined` folder. Default is `false`. It will come handy specially when you want to `verify` the contract
+* `mnemonic`: The wallet mnemonic phrase.
+* `password`: The `Geth` wallet password, If you want use your local `geth` as the wallet manager
+* `combined`: Module will copy all the `.sol` files that is being used(imported) into the `combined` folder. It will come handy specially when you want to `verify` a contract. Default is `false`
 * `compilerOptimize`: whether compiler should use optimization or not. Default is `false`
+* `setGas`: Will calculate and set the gas, gasPrice arguments. Default is `false`
 
-## Getting information before deploying, using Geth as a provider
+Either private, or mnemonic, or password should be used.
+
+## Getting information only, using Geth as a provider
 You can run a `Geth` by:
 ```bash
 geth --goerli --ws --http --syncmode=light --http.api="eth,net,web3,personal,txpool" --allow-insecure-unlock  --http.corsdomain "*"
@@ -62,9 +66,10 @@ let secrets = require('./secrets.json');
 			privateKey: secrets.privateKey,
 			httpAddress: "http://127.0.0.1:8545",
 			compilerOptimize: false,
-			compileOutput: 'bin'
+			compileOutput: 'bin',
+			confirmations: true
 		});
-		deployer.info()
+		await deployer.info()
 	}
 	catch (e)
 	{
@@ -89,7 +94,7 @@ ETH balance after deploying:  5.8388647658483
 ```
 
 ## Deploying using infura RPC API address
-If you do not have an infura key account, you can signup [here](https://infura.io/)
+If you do not have an infura account, you can signup [here](https://infura.io/)
 
 ```javascript
 let Deployer = require('ethereum-smart-contract-deployer');
@@ -107,9 +112,10 @@ let secrets = require('./secrets.json');
 			httpAddress: secrets.goerliAPIKey,
 			compilerOptimize: true,
 			compileOutput: 'bin',
-			combined: true
+			combined: true,
+			confirmations: true
 		});
-		deployer.deploy()
+		await deployer.deploy()
 	}
 	catch (e)
 	{
@@ -142,7 +148,7 @@ Contract Address: 0x5c71E30f5c846Fd1F74a71E5fae274780aa57e51
 Etherscan.io: https://goerli.etherscan.io/address/0x5c71E30f5c846Fd1F74a71E5fae274780aa57e51
 ```
 
-## Deploying using Geth as a provider and wallet
+## Deploying using Geth as the provider and the wallet manager
 You may want use you local `Geth` as the wallet manager. And you have already imported your accounts there:
 ```bash
 geth account import ~/path.to/privateKey
@@ -166,7 +172,47 @@ let secrets = require('./secrets.json');
 			compileOutput: 'bin'
 		});
 		// await deployer.info()
-		deployer.deploy()
+		await deployer.deploy()
+	}
+	catch (e)
+	{
+		console.error("Error:" , e);
+	}
+})();
+```
+
+## Deploying on Ganache using mnemonic phrase
+```javascript
+let Deployer = require('ethereum-smart-contract-deployer');
+let secrets = require('./secrets.json');
+
+(async () => {
+	try
+	{
+		let deployer = await new Deployer({
+			contractFilePath: "./voter.sol",
+			contractName: "Voter",
+			input: [["mlibre" , "Good"]],
+			sender,
+			mnemonic: "gospel fault armor invest scrap manage salad ride amazing among clay feature",
+			httpAddress: "http://127.0.0.1:7545",
+			compilerOptimize: false,
+			compileOutput: "bin",
+			combined: true,
+			setGas: true,
+			confirmations: false
+		})
+		let contract = await deployer.deploy()
+		// let abi = deployer.contract.abi
+		// let contract = deployer.contractInstance
+		await contract.methods.addOption("new option").send({from: sender})
+		let options = await contract.methods.getOptions().call()
+		await contract.methods.startVoting().send({from: sender})
+		await contract.methods.vote(0).send({from: sender})
+		const votes = await contract.methods.getVotes().call({
+			from: sender,
+		})
+		console.log(options, votes)
 	}
 	catch (e)
 	{
