@@ -73,10 +73,7 @@ let secrets = require('./secrets.json');
 			input: [12300000000],
 			sender: '0xD8f24D419153E5D03d614C5155f900f4B5C8A65C',
 			privateKey: secrets.privateKey,
-			httpAddress: "http://127.0.0.1:8545",
-			compilerOptimize: false,
-			compileOutput: 'bin',
-			confirmations: true
+			httpAddress: "http://127.0.0.1:8545"
 		});
 		await deployer.info()
 	}
@@ -118,11 +115,7 @@ let secrets = require('./secrets.json');
 			input: [12300000000],
 			sender: '0xD8f24D419153E5D03d614C5155f900f4B5C8A65C',
 			privateKey: secrets.D8PrivateKey,
-			httpAddress: secrets.goerliAPIKey,
-			compilerOptimize: true,
-			compileOutput: 'bin',
-			combined: true,
-			confirmations: true
+			httpAddress: secrets.goerliAPIKey
 		});
 		await deployer.deploy()
 	}
@@ -209,7 +202,7 @@ let secrets = require('./secrets.json');
 			compileOutput: "bin",
 			combined: true,
 			setGas: true,
-			confirmations: false
+			confirmations: true
 		})
 		let contract = await deployer.deploy()
 		// let abi = deployer.contract.abi
