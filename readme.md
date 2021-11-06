@@ -13,7 +13,7 @@ web3: ^1.6.0
 * [Installation](#installation)
 * [Requirements](#requirements)
 * [Examples Of Usage](#examples-of-usage)
-	* [Getting information only, using Geth as a provider](#getting-information-only,-using-geth-as-a-provider)
+	* [Getting information only, using Geth as a provider](#getting-information-only-using-geth-as-a-provider)
 	* [Deploying using infura RPC API address](#deploying-using-infura-rpc-API-address)
 	* [Deploying using Geth as the provider and the wallet manager](#deploying-using-geth-as-the-provider-and-the-wallet-manager)
 	* [Deploying on Ganache using a mnemonic phrase](#deploying-on-ganache-using-a-mnemonic-phrase)
