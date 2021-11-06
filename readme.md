@@ -54,7 +54,7 @@ The deployer can work with your local `geth` client or external providers like *
 
 Either `privateKey`, or `mnemonic`, or `password` should be used.
 
-You can file the sample contracts in the `contracts` folder.
+You can find the sample contracts in the `contracts` folder.
 
 ## Getting information only, using Geth as a provider
 You can run a `Geth` by:
