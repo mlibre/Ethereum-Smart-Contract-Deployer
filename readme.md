@@ -68,7 +68,7 @@ let secrets = require('./secrets.json');
 	try
 	{
 		let deployer = await new Deployer({
-			contractFilePath: './ERC20Basic.sol',
+			contractFilePath: './ERC20.sol',
 			contractName: 'MlibreToken',
 			input: [12300000000],
 			sender: '0xD8f24D419153E5D03d614C5155f900f4B5C8A65C',
@@ -90,7 +90,7 @@ Network Name:  goerli
 Network Peers:  4
 
 Solidity Version 0.8.9
-Compiling contract ERC20Basic.sol -> MlibreToken
+Compiling contract ERC20.sol -> MlibreToken
 
 ETH balance:  5.84133280435159079
 Gas:  1645359
@@ -110,7 +110,7 @@ let secrets = require('./secrets.json');
 	try
 	{
 		let deployer = await new Deployer({
-			contractFilePath: './ERC20Basic.sol',
+			contractFilePath: './ERC20.sol',
 			contractName: 'MlibreToken',
 			input: [12300000000],
 			sender: '0xD8f24D419153E5D03d614C5155f900f4B5C8A65C',
@@ -132,7 +132,7 @@ Network Name:  goerli
 Network Peers:  17
 
 Solidity Version: 0.8.9
-Compiling contract ERC20Basic.sol -> MlibreToken
+Compiling contract ERC20.sol -> MlibreToken
 
 ETH balance:  5.84133280435159079
 Gas:  838377
@@ -165,7 +165,7 @@ let secrets = require('./secrets.json');
 	try
 	{
 		let deployer = await new Deployer({
-			contractFilePath: './ERC20Basic.sol',
+			contractFilePath: './ERC20.sol',
 			contractName: 'MlibreToken',
 			input: [12300000000],
 			sender: '0xD8f24D419153E5D03d614C5155f900f4B5C8A65C',
