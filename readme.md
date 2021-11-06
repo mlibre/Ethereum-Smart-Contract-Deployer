@@ -17,6 +17,7 @@ web3: ^1.6.0
 	* [Deploying using infura RPC API address](#deploying-using-infura-rpc-API-address)
 	* [Deploying using Geth as the provider and the wallet manager](#deploying-using-geth-as-the-provider-and-the-wallet-manager)
 	* [Deploying on Ganache using a mnemonic phrase](#deploying-on-ganache-using-a-mnemonic-phrase)
+	* [Advance Example](#advance-example)
 * [License](#license)
 * [Donate](#donate-heartpulse)
 
@@ -26,37 +27,32 @@ npm i ethereum-smart-contract-deployer
 ```
 
 # Requirements
-1. Make sure you have the solidity compiler `solcjs` installed.
+Make sure you have the solidity compiler `solcjs` installed.
 ```bash
 sudo npm install -g solc
-```
-
-2. Your contract file. something like `ERC20.sol`:
-```javascript
-pragma solidity ^0.8.9;
-
-import "./node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
-contract MlibreToken is ERC20 {
-    constructor(uint256 initialSupply) ERC20("Mlibre", "MLB") {
-        _mint(msg.sender, initialSupply * (10 ** uint256(decimals())));
-    }
-}
 ```
 
 # Examples Of Usage 
 The deployer can work with your local `geth` client or external providers like **infura**.  
 
+* `contractFilePath`: Contract file path
+* `contractName`: Contract name
 * `httpAddress`: The RPC API URL. Default is `http://127.0.0.1:8545`
 * `privateKey`: The address privateKey
 * `mnemonic`: The wallet mnemonic phrase
 * `password`: The `Geth` wallet password, If you want to use your local `geth` as the wallet manager
-* `input`: Contract Constructor input
+* `input`: Contract Constructor input. don't pass it if the constructor does not have any input
 * `sender`: The sender address
+* `web3`: If you have your own web3 object, you can pass it to the deployer. otherwise module will create a new one.
 * `compilerOptimize`: whether the compiler should use optimization or not. Default is `false`
-* `combined`: Module will copy all the `.sol` files that are being used(imported) into the `combined` folder. It will come in handy, especially when you want to `verify` a contract. Default is `false`
+* `combined`: Will copy all the `.sol` files that are being used(imported) into the `combined` folder. It will come in handy, especially when you want to `verify` a contract. Default is `false`
 * `setGas`: Will calculate and set the `gas` and `gasPrice` arguments. Default is `false`
+* `compileOutput`: Will compile the contract and save the output(abi, ...) to the `compileOutput` folder. Default is `bin`
+* `confirmations`: Log the transaction confirmations. Default is `false`
 
-Either private, or mnemonic, or password should be used.
+Either `privateKey`, or `mnemonic`, or `password` should be used.
+
+You can file the sample contracts in the `contracts` folder.
 
 ## Getting information only, using Geth as a provider
 You can run a `Geth` by:
@@ -232,6 +228,47 @@ let secrets = require('./secrets.json');
 		console.error("Error:" , e);
 	}
 })();
+```
+
+## Advance example
+```javascript
+
+(async () => {
+	let sender = "0xc6b2fB12F47dcA59e2d79D6AdE8825Dc80314Db9"
+	try {
+		let deployer = await new Deployer({
+			contractFilePath: "./multi-sig-wallet.sol",
+			contractName: "MultiSigWallet",
+			input: [
+				"0x14c6814d103db28ea5aE0086552051f21e3790e3", // beneficiary
+				["0xCbee283AA4b615E8B474092F43710B786e1aBE16", "0x3CCc5104aEA8f2faDfbd086a08cE6f3515Bf08BB" , "0xF5cb7F7D0F1012e159eb6Cd2334b8C202596a54e"], // approvers
+				2 // min approves
+			],
+			sender,
+			mnemonic: "gospel fault armor invest scrap manage salad ride amazing among clay feature",
+			httpAddress: "http://127.0.0.1:7545",
+			compilerOptimize: false,
+			compileOutput: "bin",
+			combined: true,
+			setGas: true,
+			confirmations: false
+		})
+		let contract = await deployer.deploy()
+		// let abi = deployer.contract.abi
+		await deployer.web3.eth.sendTransaction({
+			from: sender,
+			to: contract.options.address,
+			value: deployer.web3.utils.toWei("3", "ether")
+		})
+		let res = await contract.methods.approve().send({from: "0xCbee283AA4b615E8B474092F43710B786e1aBE16"})
+		console.log(res.events)
+		res = await contract.methods.approve().send({from: "0x3CCc5104aEA8f2faDfbd086a08cE6f3515Bf08BB"})
+		console.log(res.events)
+	}
+	catch (e) {
+		console.error("Error:", e)
+	}
+})()
 ```
 
 # License
