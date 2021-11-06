@@ -1,4 +1,5 @@
 const solc = require("solc");
+var linker = require("solc/linker");
 const Web3 = require("web3");
 const fs = require("fs");
 var path = require("path");
@@ -6,7 +7,7 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 
 class deployer 
 {
-	constructor ({contractFilePath, contractName, input, sender,
+	constructor ({contractFilePath, contractName, libraries, input, sender,
 		httpAddress, web3, setGas, privateKey, password, mnemonic,
 		compilerOptimize,	compileOutput, combined, confirmations}) 
 	{
@@ -15,6 +16,7 @@ class deployer
 			this.contractFilePath = contractFilePath; // Contract File path
 			this.CFileName = path.parse(contractFilePath).base; // Contract File Name
 			this.contractName = contractName;
+			this.libraries = libraries;
 			this.input = input;
 			this.sender = sender;
 			this.privateKey = privateKey; // PrivateKey
@@ -70,14 +72,18 @@ class deployer
 	async deploy () 
 	{
 		const self = this;
-		await this.networkInfo();
+		await self.networkInfo();
 		self.compile();
-		if (this.password)
+		if (self.password)
 		{
 			await self.unlockAccount(1000);
 		}
 		const Voter = new self.web3.eth.Contract(self.contract.abi);
-		const bytecode = `0x${self.contract.evm.bytecode.object}`;
+		let bytecode = `0x${self.contract.evm.bytecode.object}`;
+		if (self.libraries)
+		{
+			bytecode = linker.linkBytecode(bytecode, self.libraries);
+		}
 		let op = {
 			data: bytecode
 		};
@@ -186,7 +192,6 @@ class deployer
 		console.log();
 		const contractName = this.contractName || Object.keys(compiledContract.contracts[this.CFileName])[0];
 		const contract = compiledContract.contracts[this.CFileName][contractName];
-		// console.log(contractName , contract.abi);
 		if (!fs.existsSync(this.compileOutput))
 		{
 			fs.mkdirSync(this.compileOutput, { recursive: true });
