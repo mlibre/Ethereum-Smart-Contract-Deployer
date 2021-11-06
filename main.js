@@ -29,7 +29,7 @@ class deployer
 			}
 			if (password)
 			{
-				this.web3 = web3 || await this.createHTTPWeb3();
+				this.web3 = web3 || this.createHTTPWeb3();
 			}
 			this.setGas = setGas || false;
 			this.compilerOptimize = compilerOptimize || false;
@@ -44,29 +44,6 @@ class deployer
 			this.getPeerCount;
 			return this;
 		})();
-	}
-	async info ()
-	{
-		const self = this;
-
-		await this.networkInfo();
-		this.compile();
-
-		const Voter = new self.web3.eth.Contract(self.contract.abi);
-		const bytecode = `0x${self.contract.evm.bytecode.object}`;
-		let op = {
-			data: bytecode
-		};
-		if (self.input)
-		{
-			op = Object.assign(op, {
-				arguments: self.input
-			});
-		}
-		const gasEstimateValue = await Voter.deploy(op).estimateGas({
-			from: self.sender
-		});
-		await self.gasCostEstimate(gasEstimateValue, self.web3);
 	}
 
 	async deploy () 
@@ -98,7 +75,7 @@ class deployer
 		});
 		const gasPrice = await self.gasCostEstimate(gasEstimateValue, self.web3);
 
-		console.log("\nDeploying Contract ...");
+		console.log(`\nDeploying Contract ${self.contractName}`);
 		console.log("Arguments: ", op.arguments);
 		console.log();
 
@@ -162,7 +139,7 @@ class deployer
 				}
 			}
 		};
-		console.log(`Compiling contract ${this.CFileName} -> ${this.contractName}`);
+		console.log(`Compiling contract ${this.CFileName}`);
 		let importFunc = this.findImports;
 		if (this.combined)
 		{
@@ -190,17 +167,17 @@ class deployer
 			throw compiledContract.errors;
 		}
 		console.log();
-		const contractName = this.contractName || Object.keys(compiledContract.contracts[this.CFileName])[0];
-		const contract = compiledContract.contracts[this.CFileName][contractName];
+		this.contractName = this.contractName || Object.keys(compiledContract.contracts[this.CFileName])[0];
+		const contract = compiledContract.contracts[this.CFileName][this.contractName];
 		if (!fs.existsSync(this.compileOutput))
 		{
 			fs.mkdirSync(this.compileOutput, { recursive: true });
 		}
-		fs.writeFileSync(path.join(this.compileOutput, `${contractName}_abi.json`), JSON.stringify(contract.abi));
+		fs.writeFileSync(path.join(this.compileOutput, `${this.contractName}_abi.json`), JSON.stringify(contract.abi));
 		this.contract = contract;
 	}
 
-	async createHTTPWeb3 ()
+	createHTTPWeb3 ()
 	{
 		this.web3 = new Web3(this.httpAddress);
 		return this.web3;
@@ -231,6 +208,30 @@ class deployer
 			this.provider.engine.stop();
 			throw error;
 		}
+	}
+
+	async info ()
+	{
+		const self = this;
+
+		await this.networkInfo();
+		this.compile();
+
+		const Voter = new self.web3.eth.Contract(self.contract.abi);
+		const bytecode = `0x${self.contract.evm.bytecode.object}`;
+		let op = {
+			data: bytecode
+		};
+		if (self.input)
+		{
+			op = Object.assign(op, {
+				arguments: self.input
+			});
+		}
+		const gasEstimateValue = await Voter.deploy(op).estimateGas({
+			from: self.sender
+		});
+		await self.gasCostEstimate(gasEstimateValue, self.web3);
 	}
 
 	async networkInfo ()

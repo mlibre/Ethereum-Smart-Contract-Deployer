@@ -13,8 +13,8 @@ web3: ^1.6.0
 * [Installation](#installation)
 * [Requirements](#requirements)
 * [Examples Of Usage](#examples-of-usage)
-	* [Getting information only, using Geth as a provider](#getting-information-only-using-geth-as-a-provider)
 	* [Deploying using infura RPC API address](#deploying-using-infura-rpc-API-address)
+	* [Getting information only, using Geth as a provider](#getting-information-only-using-geth-as-a-provider)
 	* [Deploying using Geth as the provider and the wallet manager](#deploying-using-geth-as-the-provider-and-the-wallet-manager)
 	* [Deploying on Ganache using a mnemonic phrase](#deploying-on-ganache-using-a-mnemonic-phrase)
 	* [Advance example - Multi Signature Wallet](#advance-example---multi-signature-wallet)
@@ -37,7 +37,7 @@ sudo npm install -g solc
 The deployer can work with your local `geth` client or external providers like **infura**.  
 
 * `contractFilePath`: Contract file path
-* `contractName`: Contract name
+* `contractName`: Contract name. If not provided, will use the first contract in the file
 * `httpAddress`: The RPC API URL. Default is `http://127.0.0.1:8545`
 * `privateKey`: The address privateKey
 * `mnemonic`: The wallet mnemonic phrase
@@ -46,7 +46,7 @@ The deployer can work with your local `geth` client or external providers like *
 * `sender`: The sender address
 * `web3`: If you have your own web3 object, you can pass it to the deployer. otherwise module will create a new one.
 * `compilerOptimize`: whether the compiler should use optimization or not. Default is `false`
-* `combined`: Will copy all the `.sol` files that are being used(imported) into the `combined` folder. It will come in handy, especially when you want to `verify` a contract. Default is `false`
+* `combined`: Will copy all the `.sol` files that are being used(imported) into the `combined` folder It will come in handy, especially when you want to `verify` a contract. Default is `false`
 * `setGas`: Will calculate and set the `gas` and `gasPrice` arguments. Default is `false`
 * `compileOutput`: Will compile the contract and save the output(abi, ...) to the `compileOutput` folder. Default is `bin`
 * `confirmations`: Log the transaction confirmations. Default is `false`
@@ -55,6 +55,56 @@ The deployer can work with your local `geth` client or external providers like *
 Either `privateKey`, or `mnemonic`, or `password` should be used.
 
 You can find the sample contracts in the `contracts` folder.
+
+## Deploying using infura RPC API address
+If you do not have an infura account, you can signup [here](https://infura.io/)
+
+```javascript
+let Deployer = require('ethereum-smart-contract-deployer');
+let secrets = require('./secrets.json');
+
+(async () => {
+	try
+	{
+		let deployer = await new Deployer({
+			contractFilePath: 'ERC20.sol',
+			input: [12300000000],
+			sender: '0xD8f24D419153E5D03d614C5155f900f4B5C8A65C',
+			privateKey: secrets.D8PrivateKey,
+			httpAddress: secrets.goerliAPIKey
+		});
+		await deployer.deploy()
+	}
+	catch (e)
+	{
+		console.error("Error:" , e);
+	}
+})();
+```
+
+Output:
+```java
+Network Name:  goerli
+Network Peers:  17
+
+Solidity Version: 0.8.9
+Compiling contract ERC20.sol -> MlibreToken
+
+ETH balance:  5.84133280435159079
+Gas:  838377
+Gas Price in ETH:  0.000000001030000006
+Total Cost in ETH:  0.000863528315030262
+ETH balance after deploying:  5.84046927603656
+
+Deploying Contract ...
+Arguments:  [ 12300000000 ]
+
+Transaction hash: 0x74b32c42c7f331b08a7c0f8785c569541bd268b425bf610cbfbcd97c3895ecc3
+Confirmation Number: 0
+Owner: 0xD8f24D419153E5D03d614C5155f900f4B5C8A65C
+Contract Address: 0x5c71E30f5c846Fd1F74a71E5fae274780aa57e51
+Etherscan.io: https://goerli.etherscan.io/address/0x5c71E30f5c846Fd1F74a71E5fae274780aa57e51
+```
 
 ## Getting information only, using Geth as a provider
 You can run a `Geth` by:
@@ -101,56 +151,6 @@ Total Cost in ETH:  0.0024680385032907182
 ETH balance after deploying:  5.8388647658483
 ```
 
-## Deploying using infura RPC API address
-If you do not have an infura account, you can signup [here](https://infura.io/)
-
-```javascript
-let Deployer = require('ethereum-smart-contract-deployer');
-let secrets = require('./secrets.json');
-
-(async () => {
-	try
-	{
-		let deployer = await new Deployer({
-			contractFilePath: './ERC20.sol',
-			contractName: 'MlibreToken',
-			input: [12300000000],
-			sender: '0xD8f24D419153E5D03d614C5155f900f4B5C8A65C',
-			privateKey: secrets.D8PrivateKey,
-			httpAddress: secrets.goerliAPIKey
-		});
-		await deployer.deploy()
-	}
-	catch (e)
-	{
-		console.error("Error:" , e);
-	}
-})();
-```
-
-Output:
-```java
-Network Name:  goerli
-Network Peers:  17
-
-Solidity Version: 0.8.9
-Compiling contract ERC20.sol -> MlibreToken
-
-ETH balance:  5.84133280435159079
-Gas:  838377
-Gas Price in ETH:  0.000000001030000006
-Total Cost in ETH:  0.000863528315030262
-ETH balance after deploying:  5.84046927603656
-
-Deploying Contract ...
-Arguments:  [ 12300000000 ]
-
-Transaction hash: 0x74b32c42c7f331b08a7c0f8785c569541bd268b425bf610cbfbcd97c3895ecc3
-Confirmation Number: 0
-Owner: 0xD8f24D419153E5D03d614C5155f900f4B5C8A65C
-Contract Address: 0x5c71E30f5c846Fd1F74a71E5fae274780aa57e51
-Etherscan.io: https://goerli.etherscan.io/address/0x5c71E30f5c846Fd1F74a71E5fae274780aa57e51
-```
 
 ## Deploying using Geth as the provider and the wallet manager
 You may want use you local `Geth` as the wallet manager. And you have already imported your accounts there:
