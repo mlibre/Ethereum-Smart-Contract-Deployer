@@ -1,6 +1,6 @@
 {
   "name": "ethereum-smart-contract-deployer",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Easy deploying ethereum smart contracts",
   "main": "main.js",
   "author": {

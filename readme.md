@@ -17,8 +17,8 @@ web3: ^1.6.0
 	* [Deploying using infura RPC API address](#deploying-using-infura-rpc-API-address)
 	* [Deploying using Geth as the provider and the wallet manager](#deploying-using-geth-as-the-provider-and-the-wallet-manager)
 	* [Deploying on Ganache using a mnemonic phrase](#deploying-on-ganache-using-a-mnemonic-phrase)
-	* [Advance example - Multi Signature Wallet](#advance---example-multi-signature-wallet)
-	* [Advance example - Libraries](#advance---example-libraries)
+	* [Advance example - Multi Signature Wallet](#advance-example---multi-signature-wallet)
+	* [Advance example - Libraries](#advance-example---libraries)
 * [License](#license)
 * [Donate](#donate-heartpulse)
 
