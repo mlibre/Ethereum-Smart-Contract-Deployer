@@ -33,7 +33,7 @@ contract Voter {
 
     function remove() public {
         require(msg.sender == owner, "Only the owner can refill.");
-        selfdestruct(payable(0x14c6814d103db28ea5aE0086552051f21e3790e3));
+        selfdestruct(payable(owner));
     }
 
     function addOption(string memory option) public {
