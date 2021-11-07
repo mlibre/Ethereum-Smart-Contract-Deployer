@@ -8,7 +8,7 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 class deployer 
 {
 	constructor ({contractFilePath, contractName, libraries, input, sender,
-		httpAddress, web3, setGas, privateKey, password, mnemonic,
+		address, web3, setGas, privateKey, password, mnemonic,
 		compilerOptimize,	compileOutput, combined, confirmations}) 
 	{
 		return (async () => 
@@ -22,14 +22,24 @@ class deployer
 			this.privateKey = privateKey; // PrivateKey
 			this.password = password;
 			this.mnemonic = mnemonic;
-			this.httpAddress = httpAddress || "http://127.0.0.1:8545";
+			this.address = address || "http://127.0.0.1:8545";
 			if (privateKey  || mnemonic)
 			{
 				this.web3 = web3 || this.hdwallet();
 			}
-			if (password)
+			else if (web3)
 			{
-				this.web3 = web3 || this.createHTTPWeb3();
+				this.web3 = web3;
+			}
+			else if (password)
+			{
+				this.web3 = this.createWeb3();
+			}
+			else
+			{
+				console.log("You have not provided neither of 'privateKey', 'password' or 'web3'");
+				console.log("Creating a basic Web3 provider ...");
+				this.web3 = this.createWeb3();
 			}
 			this.setGas = setGas || false;
 			this.compilerOptimize = compilerOptimize || false;
@@ -177,9 +187,9 @@ class deployer
 		this.contract = contract;
 	}
 
-	createHTTPWeb3 ()
+	createWeb3 ()
 	{
-		this.web3 = new Web3(this.httpAddress);
+		this.web3 = new Web3(this.address);
 		return this.web3;
 	}
 
@@ -188,7 +198,7 @@ class deployer
 		try 
 		{
 			const options = {
-				providerOrUrl: this.httpAddress
+				providerOrUrl: this.address
 			};
 			if (this.privateKey)
 			{
