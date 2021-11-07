@@ -37,7 +37,7 @@ class deployer
 			}
 			else
 			{
-				console.log("You have not provided neither of 'privateKey', 'password' or 'web3'");
+				console.log("You have not provided neither of 'privateKey', 'mnemonic', 'password' or 'web3'");
 				console.log("Creating a basic Web3 provider ...");
 				this.web3 = this.createWeb3();
 			}
