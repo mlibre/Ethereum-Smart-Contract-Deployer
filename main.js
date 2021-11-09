@@ -37,7 +37,7 @@ class deployer
 			}
 			else
 			{
-				console.log("You have not provided either of 'privateKey', 'mnemonic', 'password' or 'web3'");
+				console.log("You have not provided neither of 'privateKey', 'password' or 'web3'");
 				console.log("Creating a basic Web3 provider ...");
 				this.web3 = this.createWeb3();
 			}
@@ -109,6 +109,10 @@ class deployer
 			{
 				console.log(`Confirmation Number: ${confirmationNumber}`);
 			}
+		})
+		.on("receipt", function (receipt)
+		{
+			console.log("Block number: ", receipt.blockNumber);
 		})
 		.on("error" , function (error) 
 		{
