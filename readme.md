@@ -6,7 +6,7 @@ Tested with:
 
 ```javascript
 @truffle/hdwallet-provider: ^1.5.1
-solc: ^0.8.9
+solc: ^0.8.10
 web3: ^1.6.0
 ```
 
@@ -200,7 +200,6 @@ let secrets = require('./secrets.json');
 
 ```javascript
 let Deployer = require('ethereum-smart-contract-deployer');
-let secrets = require('./secrets.json');
 
 (async () => {
  try
@@ -209,7 +208,7 @@ let secrets = require('./secrets.json');
    contractFilePath: "./voter.sol",
    contractName: "Voter",
    input: [["mlibre" , "Good"]],
-   sender,
+   sender: "0xc6b2fB12F47dcA59e2d79D6AdE8825Dc80314Db9",
    mnemonic: "gospel fault armor invest scrap manage salad ride amazing among clay feature",
    address: "http://127.0.0.1:7545",
    compilerOptimize: false,

@@ -4,6 +4,7 @@ const Web3 = require("web3");
 const fs = require("fs");
 var path = require("path");
 const HDWalletProvider = require("@truffle/hdwallet-provider");
+let contractFolderPath;
 
 class deployer 
 {
@@ -14,7 +15,9 @@ class deployer
 		return (async () => 
 		{
 			this.contractFilePath = contractFilePath; // Contract File path
-			this.CFileName = path.parse(contractFilePath).base; // Contract File Name
+			this.ContractFileName = path.parse(contractFilePath).base; // Contract File Name
+			this.contractFolderPath = path.dirname(contractFilePath); // Contract Folder Path
+			contractFolderPath = this.contractFolderPath; // Contract Folder Path
 			this.contractName = contractName;
 			this.libraries = libraries;
 			this.input = input;
@@ -132,7 +135,7 @@ class deployer
 			language: "Solidity",
 			sources:
 			{
-				[this.CFileName]:
+				[this.ContractFileName]:
 				{
 					content: contractRaw
 				}
@@ -153,7 +156,7 @@ class deployer
 				}
 			}
 		};
-		console.log(`Compiling contract ${this.CFileName}`);
+		console.log(`Compiling contract ${this.ContractFileName}`);
 		let importFunc = this.findImports;
 		if (this.combined)
 		{
@@ -170,7 +173,7 @@ class deployer
 			}
 			try 
 			{
-				fs.copyFileSync(this.contractFilePath , `./combined/${this.CFileName}`);
+				fs.copyFileSync(this.contractFilePath , `./combined/${this.ContractFileName}`);
 			}
 			catch {}
 			importFunc = this.findImportsCombine;
@@ -181,8 +184,8 @@ class deployer
 			throw compiledContract.errors;
 		}
 		console.log();
-		this.contractName = this.contractName || Object.keys(compiledContract.contracts[this.CFileName])[0];
-		const contract = compiledContract.contracts[this.CFileName][this.contractName];
+		this.contractName = this.contractName || Object.keys(compiledContract.contracts[this.ContractFileName])[0];
+		const contract = compiledContract.contracts[this.ContractFileName][this.contractName];
 		if (!fs.existsSync(this.compileOutput))
 		{
 			fs.mkdirSync(this.compileOutput, { recursive: true });
@@ -322,6 +325,10 @@ class deployer
 	{
 		try 
 		{
+			if (contractFolderPath && contractFolderPath != "." && contractFolderPath != "./")
+			{
+				fPath = path.join(contractFolderPath , fPath);
+			}
 			const file = fs.readFileSync(fPath , "utf8");
 			const fileName = path.parse(fPath).base;
 			fs.copyFileSync(fPath , `./combined/${fileName}`);
