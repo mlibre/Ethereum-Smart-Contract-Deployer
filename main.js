@@ -1,15 +1,15 @@
 let solComplier = require("solc");
-var linker = require("solc/linker");
+let solComplierLinker = require("solc/linker");
 const Web3 = require("web3");
 const fs = require("fs");
-var path = require("path");
+const path = require("path");
 const HDWalletProvider = require("@truffle/hdwallet-provider");
 let contractFolderPath;
 
 class deployer 
 {
 	constructor ({contractFilePath, contractName, libraries, input, sender,
-		address, web3, solc, setGas, privateKey, password, mnemonic,
+		address, web3, solc, linker, setGas, privateKey, password, mnemonic,
 		compilerOptimize,	compileOutput, combined, confirmations}) 
 	{
 		return (async () => 
@@ -45,6 +45,7 @@ class deployer
 				this.web3 = this.createWeb3();
 			}
 			solComplier = solc || solComplier;
+			solComplierLinker = linker || solComplierLinker;
 			this.setGas = setGas || false;
 			this.compilerOptimize = compilerOptimize || false;
 			this.compileOutput = compileOutput || "bin";
@@ -73,7 +74,7 @@ class deployer
 		let bytecode = `0x${self.contract.evm.bytecode.object}`;
 		if (self.libraries)
 		{
-			bytecode = linker.linkBytecode(bytecode, self.libraries);
+			bytecode = solComplierLinker.linkBytecode(bytecode, self.libraries);
 		}
 		let op = {
 			data: bytecode

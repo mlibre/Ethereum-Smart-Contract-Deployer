@@ -59,6 +59,7 @@ sudo npm install -g solc
 |  compileOutput   |        Will compile the contract and save the output(abi, ...) to the the folder        |                bin                 |
 |  confirmations   |                            Log the transaction confirmations                            |               false                |
 |       solc       |         Solidity compiler object if you intent to use a custom solidity version         |               mySolc               |
+|      linker      |               Solidity linker object if you intent to use a custom linker               |              myLinker              |
 
 Either `privateKey`, or `mnemonic`, or `password` or `web3` should be provided. or a basic `web3` provider will be created.
 
@@ -288,7 +289,8 @@ let Deployer = require('ethereum-smart-contract-deployer');
 
 ```javascript
 let Deployer = require("ethereum-smart-contract-deployer");
-const solc = require("solc");
+const mySolc = require("solc");
+const myLinker = require("solc/linker");
 
 (async () => {
  // Deploying Utils Library
@@ -301,7 +303,8 @@ const solc = require("solc");
    sender,
    mnemonic: "gospel fault armor invest scrap manage salad ride amazing among clay feature",
    address: "http://127.0.0.1:7545",
-   solc
+   solc: mySolc,
+   linker: myLinker
   })
   let contract = await deployer.deploy()
   utilsAddress = contract.options.address
