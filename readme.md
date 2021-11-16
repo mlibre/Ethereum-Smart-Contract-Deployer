@@ -12,17 +12,17 @@ web3: ^1.6.0
 
 ## Table Of Content
 
-* [Installation](#installation)
-* [Requirements](#requirements)
-* [Examples Of Usage](#examples-of-usage)
-  * [Deploying using infura RPC API address](#deploying-using-infura-rpc-API-address)
-  * [Getting information only, using Geth as a provider](#getting-information-only-using-geth-as-a-provider)
-  * [Deploying using Geth as the provider and the wallet manager](#deploying-using-geth-as-the-provider-and-the-wallet-manager)
-  * [Deploying on Ganache using a mnemonic phrase](#deploying-on-ganache-using-a-mnemonic-phrase)
-  * [Advance example - Multi Signature Wallet](#advance-example---multi-signature-wallet)
-  * [Advance example - Libraries](#advance-example---libraries)
-* [License](#license)
-* [Donate](#donate-heartpulse)
+- [Installation](#installation)
+- [Requirements](#requirements)
+- [Examples Of Usage](#examples-of-usage)
+  - [Deploying using infura RPC API address](#deploying-using-infura-rpc-api-address)
+  - [Getting information only, using Geth as a provider](#getting-information-only-using-geth-as-a-provider)
+  - [Deploying using Geth as the provider and the wallet manager](#deploying-using-geth-as-the-provider-and-the-wallet-manager)
+  - [Deploying on Ganache using a mnemonic phrase](#deploying-on-ganache-using-a-mnemonic-phrase)
+  - [Advance example - Multi Signature Wallet](#advance-example---multi-signature-wallet)
+  - [Advance example - Libraries](#advance-example---libraries)
+- [License](#license)
+- [Donate 💗](#donate-)
 
 ## Installation
 
@@ -38,29 +38,34 @@ Make sure you have the solidity compiler `solcjs` installed.
 sudo npm install -g solc
 ```
 
-## Examples Of Usage
+## Options
 
-The deployer can work with your local `geth` client or external providers like **infura**.  
-
-* `contractFilePath`: Contract file path
-* `contractName`: Contract name. If not provided, will use the first contract in the file
-* `address`: The RPC API URL. Default is `http://127.0.0.1:8545`
-* `privateKey`: The address privateKey
-* `mnemonic`: The wallet mnemonic phrase
-* `password`: The `Geth` wallet password, If you want to use your local `geth` as the wallet manager
-* `input`: Contract Constructor input. don't pass it if the constructor does not have any input
-* `sender`: The sender address
-* `web3`: If you have your own web3 object, you can pass it to the deployer. otherwise module will create a new one.
-* `compilerOptimize`: whether the compiler should use optimization or not. Default is `false`
-* `combined`: Will copy all the `.sol` files that are being used(imported) into the `combined` folder It will come in handy, especially when you want to `verify` a contract. Default is `false`
-* `setGas`: Will calculate and set the `gas` and `gasPrice` arguments. Default is `false`
-* `compileOutput`: Will compile the contract and save the output(abi, ...) to the `compileOutput` folder. Default is `bin`
-* `confirmations`: Log the transaction confirmations. Default is `false`
-* `libraries`: If you are using libraries, you need to provide the library's contract address
+| options          | description                                                                             | example                            |
+| :--------------- | :-------------------------------------------------------------------------------------- | :--------------------------------- |
+| contractFilePath | Contract file path                                                                      | ./path/to/ERC20.sol                |
+| contractName     | Contract name, If not provided, will use the first contract in the file                 | MlibreToken                        |
+| libraries        | If you are using libraries, you need to provide the library's contract address          | `{"utils.sol:utils":utilsAddress}` |
+| address          | The RPC API URL. Default is `http://127.0.0.1:8545`                                     | <https://goerli.infura.io/v3/ID>   |
+| privateKey       | The address privateKey                                                                  | 163271846328746328746327848        |
+| mnemonic         | The wallet mnemonic phrase                                                              | word pluse ...                     |
+| password         | The `Geth` wallet password, If you want to use your local `geth` as the wallet manager  | password                           |
+| sender           | The sender address                                                                      | 0xd8....                           |
+| input            | Contract Constructor input. don't pass it if the constructor does not have any input    | [1000, 200]                        |
+| web3             | If you have your own web3 object, you can pass it. otherwise module will create one     | web3                               |
+| compilerOptimize | whether the compiler should use optimization or not                                     | false                              |
+| combined         | Will copy all the `.sol` files that are being used(imported) into the `combined` folder | false                              |
+| setGas           | Will calculate and set the `gas` and `gasPrice` arguments                               | false                              |
+| compileOutput    | Will compile the contract and save the output(abi, ...) to the the folder               | bin                                |
+| confirmations    | Log the transaction confirmations                                                       | false                              |
+| solc             | Solidity compiler object if you intent to use a custom solidity version                 | mySolc                             |
 
 Either `privateKey`, or `mnemonic`, or `password` or `web3` should be provided. or a basic `web3` provider will be created.
 
 You can find the sample contracts in the `contracts` folder.
+
+## Examples Of Usage
+
+The deployer can work with your local `geth` client or external providers like **infura**.  
 
 ### Deploying using infura RPC API address
 
@@ -282,6 +287,7 @@ let Deployer = require('ethereum-smart-contract-deployer');
 
 ```javascript
 let Deployer = require("ethereum-smart-contract-deployer");
+const solc = require("solc");
 
 (async () => {
  // Deploying Utils Library
@@ -294,6 +300,7 @@ let Deployer = require("ethereum-smart-contract-deployer");
    sender,
    mnemonic: "gospel fault armor invest scrap manage salad ride amazing among clay feature",
    address: "http://127.0.0.1:7545",
+   solc
   })
   let contract = await deployer.deploy()
   utilsAddress = contract.options.address

@@ -1,4 +1,4 @@
-const solc = require("solc");
+let solComplier = require("solc");
 var linker = require("solc/linker");
 const Web3 = require("web3");
 const fs = require("fs");
@@ -9,7 +9,7 @@ let contractFolderPath;
 class deployer 
 {
 	constructor ({contractFilePath, contractName, libraries, input, sender,
-		address, web3, setGas, privateKey, password, mnemonic,
+		address, web3, solc, setGas, privateKey, password, mnemonic,
 		compilerOptimize,	compileOutput, combined, confirmations}) 
 	{
 		return (async () => 
@@ -44,6 +44,7 @@ class deployer
 				console.log("Creating a basic Web3 provider ...");
 				this.web3 = this.createWeb3();
 			}
+			solComplier = solc || solComplier;
 			this.setGas = setGas || false;
 			this.compilerOptimize = compilerOptimize || false;
 			this.compileOutput = compileOutput || "bin";
@@ -129,7 +130,7 @@ class deployer
 
 	compile () 
 	{
-		console.log(`Solidity Version: ${solc.version()}`);
+		console.log(`Solidity Version: ${solComplier.version()}`);
 		const contractRaw = fs.readFileSync(this.contractFilePath, "utf8");
 		const complierInput = {
 			language: "Solidity",
@@ -178,7 +179,7 @@ class deployer
 			catch {}
 			importFunc = this.findImportsCombine;
 		}
-		const compiledContract = JSON.parse(solc.compile(JSON.stringify(complierInput), { import: importFunc } ));
+		const compiledContract = JSON.parse(solComplier.compile(JSON.stringify(complierInput), { import: importFunc } ));
 		if (compiledContract.errors)
 		{
 			throw compiledContract.errors;
