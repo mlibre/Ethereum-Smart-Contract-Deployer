@@ -14,6 +14,7 @@ web3: ^1.6.0
 
 - [Installation](#installation)
 - [Requirements](#requirements)
+- [Options](#options)
 - [Examples Of Usage](#examples-of-usage)
   - [Deploying using infura RPC API address](#deploying-using-infura-rpc-api-address)
   - [Getting information only, using Geth as a provider](#getting-information-only-using-geth-as-a-provider)
