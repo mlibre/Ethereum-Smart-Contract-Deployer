@@ -61,7 +61,7 @@ sudo npm install -g solc
 |       solc       |         Solidity compiler object if you intent to use a custom solidity version         |               mySolc               |
 |      linker      |               Solidity linker object if you intent to use a custom linker               |              myLinker              |
 
-Either `privateKey`, or `mnemonic`, or `password` or `web3` should be provided. or a basic `web3` provider will be created.
+Either `privateKey`, or `mnemonic`, or `password` or `web3` should be provided. otherwise a basic `web3` provider will be created.
 
 You can find the sample contracts in the `contracts` folder.
 
