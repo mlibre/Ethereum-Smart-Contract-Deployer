@@ -41,25 +41,25 @@ sudo npm install -g solc
 
 ## Options
 
-|     options      |                                       description                                       |              example               |
-| :--------------: | :-------------------------------------------------------------------------------------: | :--------------------------------: |
-| contractFilePath |                                   Contract file path                                    |        ./path/to/ERC20.sol         |
-|   contractName   |         Contract name, If not provided, will use the first contract in the file         |            MlibreToken             |
-|    libraries     |     If you are using libraries, you need to provide the library's contract address      | `{"utils.sol:utils":utilsAddress}` |
-|     address      |                   The RPC API URL. Default is `http://127.0.0.1:8545`                   |  <https://goerli.infura.io/v3/ID>  |
-|    privateKey    |                                 The address privateKey                                  |    163271846328746328746327848     |
-|     mnemonic     |                               The wallet mnemonic phrase                                |           word pluse ...           |
-|     password     | The `Geth` wallet password, If you want to use your local `geth` as the wallet manager  |              password              |
-|      sender      |                                   The sender address                                    |              0xd8....              |
-|      input       |  Contract Constructor input. don't pass it if the constructor does not have any input   |            [1000, 200]             |
-|       web3       |   If you have your own web3 object, you can pass it. otherwise module will create one   |                web3                |
-| compilerOptimize |                   whether the compiler should use optimization or not                   |               false                |
-|     combined     | Will copy all the `.sol` files that are being used(imported) into the `combined` folder |               false                |
-|      setGas      |                Will calculate and set the `gas` and `gasPrice` arguments                |               false                |
-|  compileOutput   |        Will compile the contract and save the output(abi, ...) to the the folder        |                bin                 |
-|  confirmations   |                            Log the transaction confirmations                            |               false                |
-|       solc       |         Solidity compiler object if you intent to use a custom solidity version         |               mySolc               |
-|      linker      |               Solidity linker object if you intent to use a custom linker               |              myLinker              |
+|     Options      |                                      Description                                       |              Example               |
+| :--------------: | :------------------------------------------------------------------------------------: | :--------------------------------: |
+| contractFilePath |                                   Contract file path                                   |       "./path/to/ERC20.sol "       |
+|   contractName   |        Contract name, If not provided, will use the first contract in the file         |           "MlibreToken"            |
+|    libraries     |     If you are using libraries, you need to provide the library's contract address     | `{"utils.sol:utils":utilsAddress}` |
+|     address      |                  The RPC API URL. Default is `http://127.0.0.1:8545`                   |  "https://goerli.infura.io/v3/ID"  |
+|    privateKey    |                                 The address privateKey                                 |   "163271846328746328746327848"    |
+|     mnemonic     |                               The wallet mnemonic phrase                               |          "word pluse ..."          |
+|     password     | The `Geth` wallet password, If you want to use your local `geth` as the wallet manager |             "password"             |
+|      sender      |                                   The sender address                                   |             "0xd8...."             |
+|      input       |  Contract Constructor input. don't pass it if the constructor does not have any input  |            [1000, 200]             |
+|       web3       |  If you have your own web3 object, you can pass it. otherwise module will create one   |                web3                |
+| compilerOptimize |                  whether the compiler should use optimization or not                   |               false                |
+|  compileOutput   |       Will compile the contract and save the output(abi, ...) to the the folder        |              "output"              |
+|  combineFolder   |      Will copy all the `.sol` files that are being used(imported) into the folder      |              "output"              |
+|      setGas      |               Will calculate and set the `gas` and `gasPrice` arguments                |               false                |
+|  confirmations   |                           Log the transaction confirmations                            |               false                |
+|       solc       |        Solidity compiler object if you intent to use a custom solidity version         |               mySolc               |
+|      linker      |              Solidity linker object if you intent to use a custom linker               |              myLinker              |
 
 Either `privateKey`, or `mnemonic`, or `password` or `web3` should be provided. otherwise a basic `web3` provider will be created.
 
@@ -220,7 +220,7 @@ let Deployer = require('ethereum-smart-contract-deployer');
    address: "http://127.0.0.1:7545",
    compilerOptimize: false,
    compileOutput: "bin",
-   combined: true,
+   combineFolder: "output",
    setGas: true,
    confirmations: true
   })
@@ -263,7 +263,7 @@ let Deployer = require('ethereum-smart-contract-deployer');
    address: "http://127.0.0.1:7545",
    compilerOptimize: false,
    compileOutput: "bin",
-   combined: true,
+   combineFolder: "output",
    setGas: true,
    confirmations: false
   })
@@ -314,28 +314,28 @@ const myLinker = require("solc/linker");
  }
 
  try {
-  let sender = "0xc6b2fB12F47dcA59e2d79D6AdE8825Dc80314Db9"
-  let deployer = await new Deployer({
-   contractFilePath: "./crowd-funding-using-library.sol",
-   contractName: "CrowdFundingWithDeadline",
-   libraries: {
-    "utils.sol:utils": utilsAddress
-   },
-   input: [
-    "My Campaign",
-    2, // target
-    5, // Funding Deadline in minutes
-    "0x14c6814d103db28ea5aE0086552051f21e3790e3" // beneficiary
-   ],
-   sender,
-   mnemonic: "gospel fault armor invest scrap manage salad ride amazing among clay feature",
-   address: "http://127.0.0.1:7545",
-   compilerOptimize: false,
-   compileOutput: "bin",
-   combined: true,
-   setGas: true,
-   confirmations: false
-  })
+    const sender = "0xc6b2fB12F47dcA59e2d79D6AdE8825Dc80314Db9";
+    const deployer = await new Deployer({
+    contractFilePath: "../contracts/crowd-funding-using-library.sol",
+    contractName: "CrowdFundingWithDeadline",
+    libraries: {
+      "utils.sol:utils": utilsAddress
+    },
+    input: [
+      "My Campaign", // Campaign name
+      2, // target
+      5, // Funding Deadline in minutes
+      "0x14c6814d103db28ea5aE0086552051f21e3790e3" // beneficiary
+    ],
+    sender,
+    mnemonic: "gospel fault armor invest scrap manage salad ride amazing among clay feature",
+    address: "http://127.0.0.1:7545",
+    compilerOptimize: false,
+    compileOutput: "output",
+    combineFolder: "output",
+    setGas: true,
+    confirmations: false
+  });
   let contract = await deployer.deploy()
   await contract.methods.contribute().send(
    {

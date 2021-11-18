@@ -4,18 +4,20 @@ const Web3 = require("web3");
 const fs = require("fs");
 const path = require("path");
 const HDWalletProvider = require("@truffle/hdwallet-provider");
+
 let contractFolderPath;
+let combineFolderPath;
 
 class deployer 
 {
 	constructor ({contractFilePath, contractName, libraries, input, sender,
 		address, web3, solc, linker, setGas, privateKey, password, mnemonic,
-		compilerOptimize,	compileOutput, combined, confirmations}) 
+		compilerOptimize,	compileOutput, combineFolder, confirmations}) 
 	{
 		return (async () => 
 		{
 			this.contractFilePath = contractFilePath; // Contract File path
-			this.ContractFileName = path.parse(contractFilePath).base; // Contract File Name
+			this.contractFileName = path.parse(contractFilePath).base; // Contract File Name
 			this.contractFolderPath = path.dirname(contractFilePath); // Contract Folder Path
 			contractFolderPath = this.contractFolderPath; // Contract Folder Path
 			this.contractName = contractName;
@@ -48,8 +50,8 @@ class deployer
 			solComplierLinker = linker || solComplierLinker;
 			this.setGas = setGas || false;
 			this.compilerOptimize = compilerOptimize || false;
-			this.compileOutput = compileOutput || "bin";
-			this.combined = combined || false;
+			this.compileOutput = compileOutput;
+			combineFolderPath = combineFolder;
 			this.confirmations = confirmations || false;
 
 			this.provider;
@@ -137,7 +139,7 @@ class deployer
 			language: "Solidity",
 			sources:
 			{
-				[this.ContractFileName]:
+				[this.contractFileName]:
 				{
 					content: contractRaw
 				}
@@ -158,13 +160,12 @@ class deployer
 				}
 			}
 		};
-		console.log(`Compiling contract ${this.ContractFileName}`);
-		let importFunc = this.findImports;
-		if (this.combined)
+		console.log(`Compiling contract ${this.contractFileName}`);
+		if (combineFolderPath)
 		{
 			try 
 			{
-				fs.mkdirSync("combined");
+				fs.mkdirSync(combineFolderPath);
 			}
 			catch (error) 
 			{
@@ -175,24 +176,26 @@ class deployer
 			}
 			try 
 			{
-				fs.copyFileSync(this.contractFilePath , `./combined/${this.ContractFileName}`);
+				fs.copyFileSync(this.contractFilePath ,  path.join(combineFolderPath, this.contractFileName));
 			}
 			catch {}
-			importFunc = this.findImportsCombine;
 		}
-		const compiledContract = JSON.parse(solComplier.compile(JSON.stringify(complierInput), { import: importFunc } ));
+		const compiledContract = JSON.parse(solComplier.compile(JSON.stringify(complierInput), { import: this.findImports } ));
 		if (compiledContract.errors)
 		{
 			throw compiledContract.errors;
 		}
 		console.log();
-		this.contractName = this.contractName || Object.keys(compiledContract.contracts[this.ContractFileName])[0];
-		const contract = compiledContract.contracts[this.ContractFileName][this.contractName];
-		if (!fs.existsSync(this.compileOutput))
+		this.contractName = this.contractName || Object.keys(compiledContract.contracts[this.contractFileName])[0];
+		const contract = compiledContract.contracts[this.contractFileName][this.contractName];
+		if (this.compileOutput)
 		{
-			fs.mkdirSync(this.compileOutput, { recursive: true });
+			if (!fs.existsSync(this.compileOutput))
+			{
+				fs.mkdirSync(this.compileOutput, { recursive: true });
+			}
+			fs.writeFileSync(path.join(this.compileOutput, `${this.contractName}_abi.json`), JSON.stringify(contract.abi));
 		}
-		fs.writeFileSync(path.join(this.compileOutput, `${this.contractName}_abi.json`), JSON.stringify(contract.abi));
 		this.contract = contract;
 	}
 
@@ -308,22 +311,7 @@ class deployer
 		await this.web3.eth.personal.unlockAccount(this.sender , this.password, duration);
 	}
 
-	findImports (path)
-	{
-		try 
-		{
-			return {
-				contents: fs.readFileSync(path , "utf8")
-			};
-		}
-		catch (error) 
-		{
-			console.log(error);
-			throw error;
-		}
-	}
-
-	findImportsCombine (fPath)
+	findImports (fPath)
 	{
 		try 
 		{
@@ -332,8 +320,11 @@ class deployer
 				fPath = path.join(contractFolderPath , fPath);
 			}
 			const file = fs.readFileSync(fPath , "utf8");
-			const fileName = path.parse(fPath).base;
-			fs.copyFileSync(fPath , `./combined/${fileName}`);
+			if (combineFolderPath)
+			{
+				const fileName = path.parse(fPath).base;
+				fs.copyFileSync(fPath , path.join(combineFolderPath, fileName));
+			}
 			return {
 				contents: file
 			};
